@@ -96,4 +96,50 @@ public class UserController {
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(value = "/searchUser/{userID}")
+    public ResponseEntity searchUser(@PathVariable int userID) {
+        try {
+            UserDTO userDTO = userService.searchUser(userID);
+            if (userDTO != null) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(userDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+            }else{
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No User Available for this UserID ");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        }catch (Exception ex){
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping(value = "/deleteUser/{userID}")
+    public ResponseEntity deleteUser(@PathVariable int userID) {
+        try {
+            String res = userService.deleteUser(userID);
+            if (res.equals("00")) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+            }else{
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No User Available for this UserID ");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        }catch (Exception ex){
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }
