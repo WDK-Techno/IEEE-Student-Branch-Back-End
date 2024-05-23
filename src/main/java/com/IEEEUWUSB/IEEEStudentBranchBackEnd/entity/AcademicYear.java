@@ -16,8 +16,11 @@ public class AcademicYear {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int academicID;
+
     private String enrolledYear;
+
     private String academicYear;
+
     private String status;
 
     @OneToMany(mappedBy = "academicYear")

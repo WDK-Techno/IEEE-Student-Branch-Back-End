@@ -23,6 +23,4 @@ public class UserDTO {
     private String fbURL;
     private String linkedInURL;
     private String insterURL;
-    private int academicID;
-    private int roleID;
 }

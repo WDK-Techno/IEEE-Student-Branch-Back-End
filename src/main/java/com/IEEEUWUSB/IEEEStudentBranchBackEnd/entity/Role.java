@@ -19,9 +19,15 @@ public class Role {
     private String userRole;
     private String type;
 
-    @OneToMany(mappedBy = "role")
-    private List<User> users;
+//    @OneToMany(mappedBy = "role")
+//    private List<User> users;
 
     @ManyToMany(mappedBy = "roles")
     private List<Policy> policies;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRoleOu> userRoleOus;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRoleProject> userRoleProjects;
 }

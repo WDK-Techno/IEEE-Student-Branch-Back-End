@@ -19,7 +19,7 @@ public class User {
     private int userID;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(columnDefinition = "TEXT",nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String password;
     @Column(nullable = false)
     private String firstName;
@@ -47,8 +47,13 @@ public class User {
     @JoinColumn(name = "academic_id")
     private AcademicYear academicYear;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+//    @ManyToOne
+//    @JoinColumn(name = "role_id")
+//    private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRoleOu> userRoleOus;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRoleProject> userRoleProjects;
 }
