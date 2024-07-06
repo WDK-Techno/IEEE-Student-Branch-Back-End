@@ -16,6 +16,7 @@ import java.util.List;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int projectID;
 
     @Column(nullable = false)
@@ -32,15 +33,7 @@ public class Project {
 
     private String status;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_ou",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "ou_id")
-    )
-    private List<OU> ouList;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleProject> userRoleProjects;
+
 
 }

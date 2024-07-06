@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -15,19 +17,14 @@ import java.util.List;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int roleID;
     private String userRole;
     private String type;
 
-//    @OneToMany(mappedBy = "role")
-//    private List<User> users;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<Policy> policies;
+    @OneToMany
+    private Set<Policy> policies = new HashSet<>();
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleOu> userRoleOus;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleProject> userRoleProjects;
 }

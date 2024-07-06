@@ -15,7 +15,8 @@ import java.util.List;
 public class AcademicYear {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int academicID;
+    @Column(name = "id")
+    private int acedemicId;
 
     private String enrolledYear;
 
@@ -23,6 +24,4 @@ public class AcademicYear {
 
     private String status;
 
-    @OneToMany(mappedBy = "academicYear")
-    private List<User> users;
 }
