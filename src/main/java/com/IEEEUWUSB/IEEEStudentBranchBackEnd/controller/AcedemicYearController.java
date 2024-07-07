@@ -10,8 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
+import java.util.Objects;
 
 
 @CrossOrigin
@@ -19,9 +18,8 @@ import java.util.List;
 @RequestMapping("api/v1/academic")
 public class AcedemicYearController {
 
-@Autowired
-private final AcademicYearService academicYearService;
-
+    @Autowired
+    private final AcademicYearService academicYearService;
 
 
     public AcedemicYearController(AcademicYearService academicYearService) {
@@ -38,11 +36,11 @@ private final AcademicYearService academicYearService;
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             boolean exist = academicYearService.alreadyExistsAcademicYear(academicYear);
-            if(exist){
+            if (exist) {
                 commonResponseDTO.setMessage("academic year already exists");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CONFLICT);
-            }else{
+            } else {
                 commonResponseDTO.setMessage("failed to add academic year");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
@@ -63,12 +61,27 @@ private final AcademicYearService academicYearService;
         return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
     }
 
-//    @GetMapping
-//    public ResponseEntity<CommonResponseDTO> getAcademicYears() {
-//        CommonResponseDTO<List<AcademicYear>> commonResponseDTO = new CommonResponseDTO<>();
-//        List<AcademicYear> data = academicYearService.getAllAcademicYearss();
-//        commonResponseDTO.setData(data);
-//        commonResponseDTO.setMessage("Successfully retrieved academic year");
-//        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-//    }
+
+    @PutMapping
+    public ResponseEntity<CommonResponseDTO> updateAcademicYear(@RequestBody AcademicYear academicYear) {
+        CommonResponseDTO<AcademicYear> commonResponseDTO = new CommonResponseDTO<>();
+
+        if (Objects.nonNull(academicYear.getAcedemicId()) && academicYear.getAcedemicId() != 0) {
+
+            try{
+                String message = academicYearService.updateAcademicYear(academicYear);
+                commonResponseDTO.setMessage(message);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            }catch (Exception e) {
+                commonResponseDTO.setMessage("Academic Year Edited failed");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            commonResponseDTO.setMessage("Acedemic id not found");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+        }
+
+    }
 }

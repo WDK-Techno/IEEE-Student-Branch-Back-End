@@ -44,5 +44,24 @@ public class AcademicYearService {
 
     }
 
+    public AcademicYear getAcademicYearById(int academicYearId) {
+        return academicYearRepo.findById(academicYearId).get();
+    }
+
+    public String updateAcademicYear(AcademicYear academicYear) {
+        try{
+           AcademicYear acedemic =  getAcademicYearById(academicYear.getAcedemicId());
+           academicYearRepo.save(acedemic);
+           try{
+               academicYearRepo.save(academicYear);
+               return "Academic year updated successfully";
+           }catch (Exception e){
+               return "Academic Year Edited failed";
+           }
+        }catch (Exception e){
+            return "Academic Year Not Found";
+        }
+    }
+
 
 }
