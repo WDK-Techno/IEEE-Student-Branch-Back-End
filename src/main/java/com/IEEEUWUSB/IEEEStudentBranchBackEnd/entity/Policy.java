@@ -19,11 +19,13 @@ public class Policy {
     @Column(name = "id")
     private int policyID;
 
+    @Column(nullable = false)
     private String policy;
 
+    @Column(nullable = false)
     private String type;
 
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String policyCode;
 
 

@@ -51,7 +51,6 @@ public class AcademicYearService {
     public String updateAcademicYear(AcademicYear academicYear) {
         try{
            AcademicYear acedemic =  getAcademicYearById(academicYear.getAcedemicId());
-           academicYearRepo.save(acedemic);
            try{
                academicYearRepo.save(academicYear);
                return "Academic year updated successfully";
