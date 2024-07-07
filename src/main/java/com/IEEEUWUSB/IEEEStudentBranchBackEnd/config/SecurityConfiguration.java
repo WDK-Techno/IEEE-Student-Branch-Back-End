@@ -31,6 +31,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers("/api/v1/academic").permitAll()
                                 //todo need to added management apis here with requestmatch keyword
                                 .anyRequest()
                                 .authenticated()
