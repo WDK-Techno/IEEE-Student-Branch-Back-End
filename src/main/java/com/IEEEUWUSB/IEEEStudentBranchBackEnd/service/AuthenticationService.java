@@ -52,10 +52,10 @@ public class AuthenticationService {
                 .build();
         var savedUser = repository.save(user);
         var otpCode = otpService.generateOTP();
-
+        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(1);
         var otp = OTP.builder()
                .otpCode(otpCode)
-               .exprieDate(new Date(System.currentTimeMillis()*70*100))
+               .exprieDate(expiryDateTime)
                .user(savedUser).build();
 
         otpService.createOtp(otp);

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,7 +23,8 @@ public class OTP {
     private int otpId;
 
     private Integer otpCode;
-    private Date exprieDate;
+
+    private LocalDateTime exprieDate;
 
     @OneToOne
     private User user;

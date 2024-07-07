@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ChangePasswordDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRepo;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.util.VarList;
@@ -9,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -95,6 +99,27 @@ public class UserService {
         } else {
             return VarList.RSP_NO_DATA_FOUND;
         }
+    }
+
+
+    public User findUserByEmail(String email) {
+        Optional<User> userOptional = userRepo.findByEmail(email);
+        return userOptional.orElse(null);
+    }
+
+
+    public boolean alreadyExistsUser(User user) {
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.ignoreCase())
+                .withIgnorePaths("id");
+        Example<User> example = Example.of(user, matcher);
+        try {
+            userRepo.findOne(example);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
 }

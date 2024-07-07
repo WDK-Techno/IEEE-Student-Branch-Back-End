@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -22,6 +23,11 @@ public class OTPService {
 
     public OTP createOtp(OTP otp){
         return otpRepo.save(otp);
+    }
+
+    public OTP findOtpByuser(User user){
+        Optional<OTP> otpOptional = otpRepo.findByuser(user);
+        return otpOptional.orElse(null);
     }
 
     public Integer generateOTP(){
