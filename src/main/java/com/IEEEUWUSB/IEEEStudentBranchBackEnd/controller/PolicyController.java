@@ -1,8 +1,10 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AssignPolicyDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AcademicYearService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.PolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.Objects;
 
 @CrossOrigin
@@ -47,6 +50,19 @@ public class PolicyController {
             }
 
         }
+
+    }
+
+
+    @PostMapping("/assign")
+    public ResponseEntity<CommonResponseDTO> assignPolicy(
+            @RequestBody  AssignPolicyDTO assignPolicyDTO
+    ) {
+        CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
+        String message = policyService.assignPolicy(assignPolicyDTO.getRoleId(), assignPolicyDTO.getPolicies());
+//          String message = "j";
+        commonResponseDTO.setMessage(message);
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
 
     }
 

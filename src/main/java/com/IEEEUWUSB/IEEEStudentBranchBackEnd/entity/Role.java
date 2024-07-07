@@ -29,5 +29,15 @@ public class Role {
     @OneToMany
     private Set<Policy> policies = new HashSet<>();
 
+    public void addPolicy(Policy policy) {
+        policies.add(policy);
+
+    }
+
+    public void removePolicy(Policy policy) {
+        policies.remove(policy);
+
+    }
+
 
 }

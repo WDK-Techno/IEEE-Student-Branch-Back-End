@@ -3,11 +3,15 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.PolicyRepo;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.RoleRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -15,6 +19,10 @@ public class PolicyService {
 
     @Autowired
     PolicyRepo policyRepo;
+    @Autowired
+    private RoleServices roleServices;
+    @Autowired
+    private RoleRepo roleRepo;
 
     public Policy CreatePolicy(Policy policy) {
         return policyRepo.save(policy);
@@ -57,6 +65,21 @@ public class PolicyService {
         }catch (Exception e){
             return "Academic Year Not Found";
         }
+    }
+
+    public String assignPolicy(Integer roleId, Integer[] policyIds) {
+        try{
+            Role role = roleServices.getRoleById(roleId);
+            for (Integer policyId : policyIds) {
+                Policy policy = getPolicyById(policyId);
+                role.addPolicy(policy);
+                roleRepo.save(role);
+            }
+            return "Policy Assigned successfully";
+        }catch (Exception e){
+            return "Role Not Found";
+        }
+
     }
 
 }
