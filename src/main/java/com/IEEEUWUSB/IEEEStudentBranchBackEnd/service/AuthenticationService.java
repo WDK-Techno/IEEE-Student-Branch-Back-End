@@ -4,6 +4,8 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.config.JWTService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.RegisterDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OTP;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Token;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.TokenRepo;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -29,27 +32,42 @@ public class AuthenticationService {
     private final TokenRepo tokenRepositoy;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
+    private final OTPService otpService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
+    private final AcademicYearService academicYearService;
 
-    public AuthenticationResponseDTO register(RegisterDTO request) {
+    public String register(RegisterDTO request) {
+
+        AcademicYear academicYear = academicYearService.getAcademicYearById(request.getAcademicId());
         var user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .nameWithInitial(request.getNameWithInitial())
                 .contactNo(request.getContactNo())
                 .createdDate(LocalDateTime.now())
+                .status("NOT_VERIFIED")
+                .academicYear(academicYear)
                 .build();
         var savedUser = repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(savedUser, jwtToken);
+        var otpCode = otpService.generateOTP();
 
-        return AuthenticationResponseDTO.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+        var otp = OTP.builder()
+               .otpCode(otpCode)
+               .exprieDate(new Date(System.currentTimeMillis()*70*100))
+               .user(savedUser).build();
+
+        otpService.createOtp(otp);
+
+        emailService.sendMail(savedUser.getEmail(),"OTP Verification","This is your OTP "+otpCode);
+
+
+//        var jwtToken = jwtService.generateToken(user);
+//        var refreshToken = jwtService.generateRefreshToken(user);
+//        saveUserToken(savedUser, jwtToken);
+
+        return "OTP Sent";
     }
 
 

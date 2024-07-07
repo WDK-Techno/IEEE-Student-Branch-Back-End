@@ -15,6 +15,6 @@ public class RegisterDTO {
     private String password;
     private String firstName;
     private String lastName;
-    private String nameWithInitial;
     private String contactNo;
+    private Integer academicId;
 }
