@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -16,6 +18,7 @@ import java.util.List;
 public class OU {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int ouID;
 
     @Column(nullable = false)
@@ -24,11 +27,9 @@ public class OU {
     @Column(columnDefinition = "varchar(255) default 'default_ou_pic.png'")
     private String ou_logo;
 
-    @ManyToMany(mappedBy = "ouList")
-    private List<Project> projects;
+    @OneToMany
+    private Set<Project> projects = new HashSet<>();
 
-    @OneToMany(mappedBy = "ou", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleOu> userRoleOus;
 
 
 }
