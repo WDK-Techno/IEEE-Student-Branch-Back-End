@@ -41,6 +41,9 @@ public class OTPController {
         if (dbOtp != null && dbOtp.getOtpCode().equals(otp.getOtp())) {
             LocalDateTime currentDateTime = LocalDateTime.now();
             if (dbOtp.getExprieDate().isAfter(currentDateTime)) {
+                otpService.deleteOTP(dbOtp);
+                user.setStatus("VERIFIED");
+                userService.saveUser(user);
                 commonResponseDTO.setMessage("OTP verified");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } else {

@@ -30,6 +30,10 @@ public class OTPService {
         return otpOptional.orElse(null);
     }
 
+    public void deleteOTP(OTP otp){
+        otpRepo.delete(otp);
+    }
+
     public Integer generateOTP(){
         Random rand = new Random();
         return rand.nextInt(100000,999999);
