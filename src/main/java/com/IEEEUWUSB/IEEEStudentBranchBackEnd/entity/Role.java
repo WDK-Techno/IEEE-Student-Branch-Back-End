@@ -19,9 +19,12 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int roleID;
-    private String userRole;
-    private String type;
 
+    @Column(unique = true, nullable = false)
+    private String userRole;
+
+    @Column(nullable = false)
+    private String type;
 
     @OneToMany
     private Set<Policy> policies = new HashSet<>();
