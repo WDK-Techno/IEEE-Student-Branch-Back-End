@@ -2,11 +2,16 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationResponseDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.RegisterDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AuthenticationService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,10 +26,29 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponseDTO> register(@RequestBody RegisterDTO request) {
-        return ResponseEntity.ok(service.register(request));
+    public ResponseEntity<CommonResponseDTO> register(@RequestBody RegisterDTO request) {
+        CommonResponseDTO<Integer> commonResponseDTO = new CommonResponseDTO<>();
+        try{
+            String message = service.register(request);
+            commonResponseDTO.setMessage(message);
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+        }catch (Exception e){
+            User user = new User();
+            user.setEmail(request.getEmail());
+            boolean exists = userService.alreadyExistsUser(user);
+            if(exists){
+                commonResponseDTO.setMessage("Email already exists");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.ALREADY_REPORTED);
+            }else{
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        }
+
     }
 
     @PostMapping("/authenticate")

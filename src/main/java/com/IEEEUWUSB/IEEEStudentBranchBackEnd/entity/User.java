@@ -26,7 +26,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String ieee_email;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -40,7 +40,6 @@ public class User implements UserDetails {
 
     private String ieee_membership_number;
 
-    @Column(nullable = false)
     private String nameWithInitial;
 
     @Column(nullable = false)

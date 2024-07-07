@@ -9,12 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class RegisterDTO {
-
+public class OtpCheckDTO {
+    private Integer otp;
     private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private String contactNo;
-    private Integer academicId;
+    private String type;
 }
