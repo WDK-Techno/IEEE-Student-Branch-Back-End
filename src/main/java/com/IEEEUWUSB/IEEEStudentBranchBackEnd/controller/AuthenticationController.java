@@ -52,15 +52,13 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationDTO request) {
-        return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<CommonResponseDTO> authenticate(@RequestBody AuthenticationDTO request) {
+        CommonResponseDTO<AuthenticationResponseDTO> commonResponseDTO = new CommonResponseDTO<>();
+        var data = service.authenticate(request);
+        commonResponseDTO.setData(data);
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
     }
 
-    @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        service.refreshToken(request, response);
-    }
+
 }

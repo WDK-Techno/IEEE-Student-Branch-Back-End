@@ -35,15 +35,10 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    public String saveUser(UserDTO userDTO) {
-//        if (userRepo.existsById(userDTO.getUserID())) {
-//            return VarList.RSP_DUPLICATED;
-//        } else {
-//            userRepo.save(modelMapper.map(userDTO, User.class));
-//            return VarList.RSP_SUCCESS;
-//        }
-//
-//    }
+    public User getUserId(int id) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        return optionalUser.orElse(null);
+    }
 
     public String changePassword(ChangePasswordDTO request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
