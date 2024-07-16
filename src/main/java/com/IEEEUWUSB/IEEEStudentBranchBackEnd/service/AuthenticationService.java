@@ -4,10 +4,7 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.config.JWTService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.RegisterDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OTP;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Token;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.TokenRepo;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRepo;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.util.TokenType;
@@ -36,6 +33,8 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final AcademicYearService academicYearService;
+    private final UserRoleDetailsServices userRoleDetailsServices;
+    private final RoleServices roleServices;
 
     public String register(RegisterDTO request) {
 
@@ -51,8 +50,16 @@ public class AuthenticationService {
                 .academicYear(academicYear)
                 .build();
         var savedUser = repository.save(user);
+        var memberRole = roleServices.getRoleByName("Member");
+        var userRoleDetails = UserRoleDetails.builder()
+                .user(savedUser)
+                .role(memberRole)
+                .isActive(true)
+                .type("MAIN")
+                .start_date(LocalDateTime.now()).build();
+        userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
         var otpCode = otpService.generateOTP();
-        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(1);
+        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(5);
         var otp = OTP.builder()
                .otpCode(otpCode)
                .exprieDate(expiryDateTime)

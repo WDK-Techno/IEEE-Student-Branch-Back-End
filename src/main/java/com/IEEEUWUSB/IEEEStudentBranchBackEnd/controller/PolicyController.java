@@ -60,7 +60,6 @@ public class PolicyController {
     ) {
         CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
         String message = policyService.assignPolicy(assignPolicyDTO.getRoleId(), assignPolicyDTO.getPolicies());
-//          String message = "j";
         commonResponseDTO.setMessage(message);
         return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
 

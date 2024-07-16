@@ -3,15 +3,18 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Table(name = "user_role_details")
 public class UserRoleDetails {
     @Id
@@ -19,11 +22,13 @@ public class UserRoleDetails {
     @Column(name = "id")
     private int userRoleDetailsId;
 
-    private Date start_date;
+    private LocalDateTime  start_date;
 
-    private Date end_date;
+    private LocalDateTime end_date;
 
     private Boolean isActive;
+
+    private String type;
 
    @ManyToOne
    private Role role;
@@ -36,6 +41,5 @@ public class UserRoleDetails {
 
    @ManyToOne
    private Project project;
-
 
 }
