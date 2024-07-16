@@ -5,7 +5,6 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AuthenticationResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.RegisterDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.TokenRepo;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepo repository;
-    private final TokenRepo tokenRepositoy;
     private final PasswordEncoder passwordEncoder;
     private final OTPService otpService;
     private final AuthenticationManager authenticationManager;

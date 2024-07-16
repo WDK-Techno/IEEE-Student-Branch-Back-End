@@ -82,4 +82,10 @@ public class PolicyService {
 
     }
 
+    public Policy getPolicyBycode(String code) {
+        Optional<Policy> optionalRole = policyRepo.findBypolicyCode(code);
+        return optionalRole.orElse(null);
+    }
+
+
 }

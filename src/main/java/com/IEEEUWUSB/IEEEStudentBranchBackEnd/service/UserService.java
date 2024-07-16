@@ -117,8 +117,8 @@ public class UserService {
 
     }
 
-    public void saveUser(User user) {
-        userRepo.save(user);
+    public User saveUser(User user) {
+       return userRepo.save(user);
     }
 
 }
