@@ -1,13 +1,14 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.RoleRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -23,7 +24,6 @@ public class RoleServices {
         Pageable pageable = PageRequest.of(page, 15);
         return roleRepo.findAllRoles(search, type, pageable);
     }
-
 
 
     public boolean alreadyExistsRole(Role role) {
@@ -44,16 +44,23 @@ public class RoleServices {
         return roleRepo.findById(roleId).get();
     }
 
+
+    public Role getRoleByName(String name) {
+        Optional<Role> optionalRole = roleRepo.findByuserRole(name);
+        return optionalRole.orElse(null);
+    }
+
+
     public String updateRole(Role role) {
-        try{
+        try {
             getRoleById(role.getRoleID());
-            try{
+            try {
                 roleRepo.save(role);
                 return "Role updated successfully";
-            }catch (Exception e){
+            } catch (Exception e) {
                 return "Role Edited failed";
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return "Role Not Found";
         }
     }

@@ -1,5 +1,7 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto;
 
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +15,6 @@ import lombok.NoArgsConstructor;
 public class AuthenticationResponseDTO {
     @JsonProperty("access_token")
     private String accessToken;
-    @JsonProperty("refresh_token")
-    private String refreshToken;
+    @JsonProperty("permission")
+    private UserRoleDetails userRoleDetails;
 }

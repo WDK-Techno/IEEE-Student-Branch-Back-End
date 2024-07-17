@@ -70,6 +70,7 @@ public class RoleController {
 
             try{
                 String message = roleServices.updateRole(role);
+                commonResponseDTO.setData(role);
                 commonResponseDTO.setMessage(message);
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             }catch (Exception e) {

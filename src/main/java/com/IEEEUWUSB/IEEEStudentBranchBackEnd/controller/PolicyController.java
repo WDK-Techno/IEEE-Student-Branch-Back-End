@@ -5,12 +5,15 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AcademicYearService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.PolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Array;
@@ -60,9 +63,8 @@ public class PolicyController {
     ) {
         CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
         String message = policyService.assignPolicy(assignPolicyDTO.getRoleId(), assignPolicyDTO.getPolicies());
-//          String message = "j";
         commonResponseDTO.setMessage(message);
-        return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
 
     }
 
@@ -75,6 +77,14 @@ public class PolicyController {
         commonResponseDTO.setData(data);
         commonResponseDTO.setMessage("Successfully retrieved Policies");
         return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Object principal = authentication.getPrincipal();
+//        if (principal instanceof User) {
+//            User user = (User) principal;
+//            commonResponseDTO.setMessage(user.getFirstName());
+//            commonResponseDTO.setData(user);
+//        }
+
     }
 
 
