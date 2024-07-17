@@ -28,7 +28,7 @@ public class Role {
     @Column(nullable = false)
     private String type;
 
-    @OneToMany
+    @ManyToMany
     private Set<Policy> policies = new HashSet<>();
 
     public void addPolicy(Policy policy) {
