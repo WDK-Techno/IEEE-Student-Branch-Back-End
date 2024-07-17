@@ -1,14 +1,19 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ChangePasswordDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.util.VarList;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,6 +28,9 @@ public class UserController {
 
     @Autowired
     private ResponseDTO responseDTO;
+
+    @Autowired
+    private UserRoleDetailsServices userRoleDetailsServices;
 
 
     @PatchMapping
@@ -178,6 +186,30 @@ public class UserController {
             responseDTO.setMessage(ex.getMessage());
             responseDTO.setContent(null);
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
+    @GetMapping(value = "/currentuser")
+    public ResponseEntity<CommonResponseDTO> getCurrentUser() {
+        CommonResponseDTO<UserRoleDetails> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User) {
+                User user = (User) principal;
+                var userrole = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+                commonResponseDTO.setData(userrole);
+                commonResponseDTO.setMessage("user recieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            }else{
+                commonResponseDTO.setError("User not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            commonResponseDTO.setError(ex.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
 
     }

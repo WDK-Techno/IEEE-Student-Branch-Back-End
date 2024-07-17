@@ -62,9 +62,15 @@ public class PolicyController {
             @RequestBody  AssignPolicyDTO assignPolicyDTO
     ) {
         CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
-        String message = policyService.assignPolicy(assignPolicyDTO.getRoleId(), assignPolicyDTO.getPolicies());
-        commonResponseDTO.setMessage(message);
-        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        try {
+            String message = policyService.assignPolicy(assignPolicyDTO.getRoleId(), assignPolicyDTO.getPolicies());
+            commonResponseDTO.setMessage(message);
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        }catch (Exception e){
+            commonResponseDTO.setMessage(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+
 
     }
 
@@ -77,13 +83,7 @@ public class PolicyController {
         commonResponseDTO.setData(data);
         commonResponseDTO.setMessage("Successfully retrieved Policies");
         return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Object principal = authentication.getPrincipal();
-//        if (principal instanceof User) {
-//            User user = (User) principal;
-//            commonResponseDTO.setMessage(user.getFirstName());
-//            commonResponseDTO.setData(user);
-//        }
+
 
     }
 
