@@ -35,10 +35,8 @@ public class AuthenticationController {
             commonResponseDTO.setMessage(message);
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
         }catch (Exception e){
-            User user = new User();
-            user.setEmail(request.getEmail());
-            boolean exists = userService.alreadyExistsUser(user);
-            if(exists){
+            User exists = userService.findUserByEmail(request.getEmail());
+            if(exists != null){
                 commonResponseDTO.setMessage("Email already exists");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.ALREADY_REPORTED);
             }else{

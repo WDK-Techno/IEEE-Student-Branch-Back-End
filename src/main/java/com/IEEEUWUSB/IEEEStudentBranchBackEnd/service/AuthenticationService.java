@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.View;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +31,10 @@ public class AuthenticationService {
 
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private View error;
 
-    public String register(RegisterDTO request) {
+    public String register(RegisterDTO request) throws Exception {
 
         AcademicYear academicYear = academicYearService.getAcademicYearById(request.getAcademicId());
         var user = User.builder()
@@ -44,27 +47,33 @@ public class AuthenticationService {
                 .status("NOT_VERIFIED")
                 .academicYear(academicYear)
                 .build();
-        var savedUser = repository.save(user);
+
         var memberRole = roleServices.getRoleByName("Member");
-        var userRoleDetails = UserRoleDetails.builder()
-                .user(savedUser)
-                .role(memberRole)
-                .isActive(true)
-                .type(memberRole.getType())
-                .start_date(LocalDateTime.now()).build();
-        userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
-        var otpCode = otpService.generateOTP();
-        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(5);
-        var otp = OTP.builder()
-               .otpCode(otpCode)
-               .exprieDate(expiryDateTime)
-               .user(savedUser).build();
+        if(memberRole != null){
+            var savedUser = repository.save(user);
+            var userRoleDetails = UserRoleDetails.builder()
+                    .user(savedUser)
+                    .role(memberRole)
+                    .isActive(true)
+                    .type(memberRole.getType())
+                    .start_date(LocalDateTime.now()).build();
+            userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
+            var otpCode = otpService.generateOTP();
+            LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(5);
+            var otp = OTP.builder()
+                    .otpCode(otpCode)
+                    .exprieDate(expiryDateTime)
+                    .user(savedUser).build();
 
-        otpService.createOtp(otp);
+            otpService.createOtp(otp);
 
-        emailService.sendMail(savedUser.getEmail(),"OTP Verification","This is your OTP "+otpCode);
+            emailService.sendMail(savedUser.getEmail(),"OTP Verification","This is your OTP "+otpCode);
 
-        return "OTP Sent";
+            return "OTP Sent";
+        }else{
+            throw new Exception("Member Role Not Found");
+        }
+
     }
 
 
