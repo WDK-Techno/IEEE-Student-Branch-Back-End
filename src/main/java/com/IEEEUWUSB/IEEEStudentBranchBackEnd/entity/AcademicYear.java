@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +17,7 @@ public class AcademicYear {
     private int acedemicId;
 
     @Column(nullable = false)
-    private String enrolledYear;
+    private String enrolledBatch;
 
     @Column(unique = true, nullable = false)
     private String academicYear;
