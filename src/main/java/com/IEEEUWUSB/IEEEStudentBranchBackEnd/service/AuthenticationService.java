@@ -66,9 +66,7 @@ public class AuthenticationService {
                     .user(savedUser).build();
 
             otpService.createOtp(otp);
-
             emailService.sendMail(savedUser.getEmail(),"OTP Verification","This is your OTP "+otpCode);
-
             return "OTP Sent";
         }else{
             throw new Exception("Member Role Not Found");
