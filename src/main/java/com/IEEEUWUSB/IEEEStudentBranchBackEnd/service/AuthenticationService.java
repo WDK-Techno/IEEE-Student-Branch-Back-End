@@ -86,7 +86,23 @@ public class AuthenticationService {
         );
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
-        String jwtToken = jwtUtils.generateTokenFromUsername(user);
+        String jwtToken;
+
+        if(user.getStatus().equals("VERIFIED")){
+            jwtToken = jwtUtils.generateTokenFromUsername(user);
+        }else{
+            jwtToken = "";
+            var otpCode = otpService.generateOTP();
+            LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(5);
+            var otp = OTP.builder()
+                    .otpCode(otpCode)
+                    .exprieDate(expiryDateTime)
+                    .user(user).build();
+            otpService.createOtp(otp);
+            emailService.sendMail(user.getEmail(),"OTP Verification","This is your OTP "+otpCode);
+
+        }
+
         UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user,true,"MAIN");
        return AuthenticationResponseDTO.builder()
                 .accessToken(jwtToken)
