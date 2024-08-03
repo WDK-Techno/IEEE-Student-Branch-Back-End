@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -30,8 +32,8 @@ public class UserRoleDetails {
 
     private String type;
 
-   @ManyToOne
-   private Role role;
+   @ManyToMany
+   private Set<Role> role = new HashSet<>();
 
    @ManyToOne
    private User user;

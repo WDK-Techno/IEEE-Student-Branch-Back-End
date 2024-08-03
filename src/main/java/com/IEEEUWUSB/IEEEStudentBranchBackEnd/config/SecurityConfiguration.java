@@ -20,7 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -85,20 +87,49 @@ public class SecurityConfiguration {
     @Bean
     public CommandLineRunner initData(UserRoleDetailsServices userRoleDetailsServices) {
         return args -> {
-            var OtherPolicy = Policy.builder()
-                    .policy("Other")
-                    .policyCode("OTHER")
-                    .type("MAIN").build();
-
             if(policyService.getPolicyBycode("OTHER") == null){
+                List<Policy> policies = new ArrayList<>();
+                var OtherPolicy = Policy.builder()
+                        .policy("Other")
+                        .policyCode("OTHER")
+                        .type("MAIN").build();
                 Policy savedPolicy = policyService.CreatePolicy(OtherPolicy);
-                Set<Policy> policies = new HashSet<>();
-                policies.add(savedPolicy);
+
+                policies.add(Policy.builder().policy("Finance").policyCode("FINANCE").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project").policyCode("PROJECT").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_finance").policyCode("PROJECT_FINANCE").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_task").policyCode("PROJECT_TASK").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_assign").policyCode("PROJECT_ASSIGN").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_events").policyCode("PROJECT_EVENT").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom").policyCode("EXCOM").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom_task").policyCode("EXCOM_TASK").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom_task_assign").policyCode("EXCOM_TASK_ASSIGN").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom_assign").policyCode("EXCOM_ASSIGN").type("MAIN").build());
+                policies.add(Policy.builder().policy("service").policyCode("SERVICE").type("MAIN").build());
+                policies.add(Policy.builder().policy("service_volunteer").policyCode("SERVICE_VOLUNTEER").type("MAIN").build());
+
+
+                for (Policy policy : policies) {
+                    Policy savedPolicies = policyService.CreatePolicy(policy);
+                    System.out.println("Saved Policy: " + savedPolicy);
+                }
+
+
+                Set<Policy> otherpolicies = new HashSet<>();
+                otherpolicies.add(savedPolicy);
                 var userRole = Role.builder()
                         .userRole("Admin")
                         .type("MAIN")
-                        .policies(policies)
+                        .policies(otherpolicies)
                         .build();
+
+                var userRoleMember = Role.builder()
+                        .userRole("Member")
+                        .type("MAIN")
+                        .build();
+                roleServices.CreateRole(userRoleMember);
+
                 var savedRole = roleServices.CreateRole(userRole);
 
                 var newAdmin = User.builder()
@@ -112,10 +143,11 @@ public class SecurityConfiguration {
                         .build();
 
                 var savedUser = userService.saveUser(newAdmin);
-
+                Set<Role> roles = new HashSet<>();
+                roles.add(savedRole);
                 var userRoleDetails = UserRoleDetails.builder()
                         .user(savedUser)
-                        .role(savedRole)
+                        .role(roles)
                         .isActive(true)
                         .type(savedRole.getType())
                         .start_date(LocalDateTime.now()).build();
