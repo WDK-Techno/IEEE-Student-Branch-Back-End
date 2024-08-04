@@ -4,11 +4,14 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ChangePasswordDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.util.VarList;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -192,25 +196,23 @@ public class UserController {
 
 
     @GetMapping(value = "/currentuser")
-    public ResponseEntity<CommonResponseDTO> getCurrentUser() {
+    public ResponseEntity<CommonResponseDTO> getCurrentUser(HttpServletRequest request) {
         CommonResponseDTO<UserRoleDetails> commonResponseDTO = new CommonResponseDTO<>();
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof User) {
-                User user = (User) principal;
-                var userrole = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-                commonResponseDTO.setData(userrole);
-                commonResponseDTO.setMessage("user recieved");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-            }else{
-                commonResponseDTO.setError("User not found");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception ex) {
-            commonResponseDTO.setError(ex.getMessage());
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user,true,"MAIN");
+        if (user != null) {
+            commonResponseDTO.setData(userRoleDetails);
+            commonResponseDTO.setMessage("user recieved");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        }else{
+            commonResponseDTO.setError("User not found");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
 
     }
+
+
+
+
+
 }
