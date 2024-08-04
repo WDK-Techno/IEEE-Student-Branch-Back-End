@@ -27,6 +27,9 @@ public class OU {
     @Column(columnDefinition = "varchar(255) default 'default_ou_pic.png'")
     private String ou_logo;
 
+    @Column(nullable = false)
+    private String ou_short_name;
+
     @OneToMany
     private Set<Project> projects = new HashSet<>();
 
