@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -68,16 +71,38 @@ public class PolicyService {
     }
 
     public String assignPolicy(Integer roleId, Integer[] policyIds) {
-        try{
+        try {
+            // Fetch the role by its ID
             Role role = roleServices.getRoleById(roleId);
+
+            // Fetch all existing policies for the role
+            Set<Policy> existingPolicies = new HashSet<>(role.getPolicies());
+
+            // Convert the array of policy IDs to a set for efficient lookup
+            Set<Integer> policyIdSet = new HashSet<>(Arrays.asList(policyIds));
+
+            // Iterate over existing policies and remove those not in the new list
+            for (Policy policy : existingPolicies) {
+                if (!policyIdSet.contains(policy.getPolicyID())) {
+                    role.removePolicy(policy);
+                }
+            }
+
+            // Add new policies
             for (Integer policyId : policyIds) {
                 Policy policy = getPolicyById(policyId);
-                role.addPolicy(policy);
-                roleRepo.save(role);
+                if (policy != null && !role.getPolicies().contains(policy)) {
+                    role.addPolicy(policy);
+                }
             }
-            return "Policy Assigned successfully";
-        }catch (Exception e){
-            return "Role Not Found";
+
+            // Save the updated role
+            roleRepo.save(role);
+
+            return "Policies assigned successfully";
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception for debugging
+            return "An error occurred while assigning policies";
         }
 
     }

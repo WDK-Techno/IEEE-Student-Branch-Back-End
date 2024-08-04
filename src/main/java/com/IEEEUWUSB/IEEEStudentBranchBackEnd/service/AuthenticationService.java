@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.View;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -50,10 +52,13 @@ public class AuthenticationService {
 
         var memberRole = roleServices.getRoleByName("Member");
         if(memberRole != null){
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(memberRole);
             var savedUser = repository.save(user);
             var userRoleDetails = UserRoleDetails.builder()
                     .user(savedUser)
-                    .role(memberRole)
+                    .role(roles)
                     .isActive(true)
                     .type(memberRole.getType())
                     .start_date(LocalDateTime.now()).build();
@@ -66,9 +71,7 @@ public class AuthenticationService {
                     .user(savedUser).build();
 
             otpService.createOtp(otp);
-
             emailService.sendMail(savedUser.getEmail(),"OTP Verification","This is your OTP "+otpCode);
-
             return "OTP Sent";
         }else{
             throw new Exception("Member Role Not Found");
