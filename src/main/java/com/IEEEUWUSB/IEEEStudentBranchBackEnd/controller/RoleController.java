@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @CrossOrigin
@@ -138,4 +139,36 @@ public class RoleController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
     }
+
+//    @PostMapping(value = "/role/{roleID}/assign/{userId}")
+//    public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID,@PathVariable int userId) {
+//        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+//        User user = (User) request.getAttribute("user");
+//        User
+//        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+//        boolean isExcomAssignAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ASSIGN");
+//        if (isExcomAssignAvailable) {
+//            try {
+//                var NewuserRoleDetails = UserRoleDetails.builder()
+//                        .user(savedUser)
+//                        .role(savedRole)
+//                        .isActive(true)
+//                        .type(savedRole.getType())
+//                        .start_date(LocalDateTime.now()).build();
+//
+//                userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
+////                String message = roleServices.deleteRole(roleID);
+//                commonResponseDTO.setMessage(message);
+//                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+//            } catch (Exception e) {
+//                commonResponseDTO.setMessage("Failed to Delete Role");
+//                commonResponseDTO.setError(e.getMessage());
+//                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+//            }
+//
+//        } else {
+//            commonResponseDTO.setMessage("No Authority to Delete Role");
+//            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+//        }
+//    }
 }
