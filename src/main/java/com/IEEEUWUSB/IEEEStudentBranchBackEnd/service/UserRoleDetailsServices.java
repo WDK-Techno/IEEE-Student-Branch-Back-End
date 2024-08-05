@@ -27,6 +27,12 @@ public class UserRoleDetailsServices {
         return optionalRole.orElse(null);
     }
 
+
+    public UserRoleDetails getuserRoleDetailsExom(User user,boolean isActive, String type,String type2) {
+        Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
+        return optionalRole.orElse(null);
+    }
+
     public boolean isPolicyAvailable(UserRoleDetails userData, String policyCode) {
         if (userData != null && userData.getRole() != null) {
             Role role = userData.getRole();  // Assuming there's only one role
