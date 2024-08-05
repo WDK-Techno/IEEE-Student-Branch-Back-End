@@ -32,8 +32,8 @@ public class UserRoleDetails {
 
     private String type;
 
-   @ManyToMany
-   private Set<Role> role = new HashSet<>();
+   @ManyToOne
+   private Role role;
 
    @ManyToOne
    private User user;

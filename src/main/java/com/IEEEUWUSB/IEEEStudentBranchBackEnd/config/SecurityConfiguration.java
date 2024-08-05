@@ -97,16 +97,16 @@ public class SecurityConfiguration {
 
                 policies.add(Policy.builder().policy("Finance").policyCode("FINANCE").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project").policyCode("PROJECT").type("MAIN").build());
-                policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("MAIN").build());
-                policies.add(Policy.builder().policy("Project_finance").policyCode("PROJECT_FINANCE").type("MAIN").build());
-                policies.add(Policy.builder().policy("Project_task").policyCode("PROJECT_TASK").type("MAIN").build());
-                policies.add(Policy.builder().policy("Project_assign").policyCode("PROJECT_ASSIGN").type("MAIN").build());
-                policies.add(Policy.builder().policy("Project_events").policyCode("PROJECT_EVENT").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("PROJECT").build());
+                policies.add(Policy.builder().policy("Project_finance").policyCode("PROJECT_FINANCE").type("PROJECT").build());
+                policies.add(Policy.builder().policy("Project_task").policyCode("PROJECT_TASK").type("PROJECT").build());
+                policies.add(Policy.builder().policy("Project_assign").policyCode("PROJECT_ASSIGN").type("PROJECT").build());
+                policies.add(Policy.builder().policy("Project_events").policyCode("PROJECT_EVENT").type("PROJECT").build());
                 policies.add(Policy.builder().policy("Excom").policyCode("EXCOM").type("MAIN").build());
-                policies.add(Policy.builder().policy("Excom_All").policyCode("EXCOM_ALL").type("MAIN").build());
-                policies.add(Policy.builder().policy("Excom_task").policyCode("EXCOM_TASK").type("MAIN").build());
-                policies.add(Policy.builder().policy("Excom_task_assign").policyCode("EXCOM_TASK_ASSIGN").type("MAIN").build());
-                policies.add(Policy.builder().policy("Excom_assign").policyCode("EXCOM_ASSIGN").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom_All").policyCode("EXCOM_ALL").type("EXCOM").build());
+                policies.add(Policy.builder().policy("Excom_task").policyCode("EXCOM_TASK").type("EXCOM").build());
+                policies.add(Policy.builder().policy("Excom_task_assign").policyCode("EXCOM_TASK_ASSIGN").type("EXCOM").build());
+                policies.add(Policy.builder().policy("Excom_assign").policyCode("EXCOM_ASSIGN").type("EXCOM").build());
                 policies.add(Policy.builder().policy("service").policyCode("SERVICE").type("MAIN").build());
                 policies.add(Policy.builder().policy("service_volunteer").policyCode("SERVICE_VOLUNTEER").type("MAIN").build());
 
@@ -144,11 +144,9 @@ public class SecurityConfiguration {
                         .build();
 
                 var savedUser = userService.saveUser(newAdmin);
-                Set<Role> roles = new HashSet<>();
-                roles.add(savedRole);
                 var userRoleDetails = UserRoleDetails.builder()
                         .user(savedUser)
-                        .role(roles)
+                        .role(savedRole)
                         .isActive(true)
                         .type(savedRole.getType())
                         .start_date(LocalDateTime.now()).build();
