@@ -3,6 +3,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AcademicYearService;
@@ -108,9 +109,32 @@ public class AcedemicYearController {
             }
 
         } else {
-            commonResponseDTO.setMessage("Acedemic id not found");
+            commonResponseDTO.setMessage("Academic id not found");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    @DeleteMapping(value = "/deleteAcademicYear/{academicID}")
+    public ResponseEntity<CommonResponseDTO> deletePolicy(HttpServletRequest request, @PathVariable int academicID) {
+        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
+        if (isOtherPolicyAvailable) {
+            try {
+                String message = academicYearService.deleteAcademicYear(academicID);
+                commonResponseDTO.setMessage(message);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("Failed to Delete Academic Year");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            commonResponseDTO.setMessage("No Authority to Delete Academic Year");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
     }
 }

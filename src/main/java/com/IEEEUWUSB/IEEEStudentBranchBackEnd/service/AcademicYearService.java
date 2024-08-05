@@ -25,9 +25,8 @@ public class AcademicYearService {
 
     public Page<AcademicYear> getAllAcademicYears(Integer page, String academicYear, String status) {
         Pageable pageable = PageRequest.of(page, 15);
-        return academicYearRepo.findAllByStatusAndAcademicYear(academicYear,status,pageable);
+        return academicYearRepo.findAllByStatusAndAcademicYear(academicYear, status, pageable);
     }
-
 
 
     public boolean alreadyExistsAcademicYear(AcademicYear academicYear) {
@@ -49,18 +48,26 @@ public class AcademicYearService {
     }
 
     public String updateAcademicYear(AcademicYear academicYear) {
-        try{
-           AcademicYear acedemic =  getAcademicYearById(academicYear.getAcedemicId());
-           try{
-               academicYearRepo.save(academicYear);
-               return "Academic year updated successfully";
-           }catch (Exception e){
-               return "Academic Year Edited failed";
-           }
-        }catch (Exception e){
+        try {
+            AcademicYear acedemic = getAcademicYearById(academicYear.getAcedemicId());
+            try {
+                academicYearRepo.save(academicYear);
+                return "Academic year updated successfully";
+            } catch (Exception e) {
+                return "Academic Year Edited failed";
+            }
+        } catch (Exception e) {
             return "Academic Year Not Found";
         }
     }
 
 
+    public String deleteAcademicYear(int academicID) {
+        if (academicYearRepo.existsById(academicID)) {
+            academicYearRepo.deleteById(academicID);
+            return "Academic year deleted successfully";
+        } else {
+            return "Academic Year Not Found";
+        }
+    }
 }
