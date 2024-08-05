@@ -1,5 +1,7 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.config;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +26,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRoleDetailsServices userRoleDetailsServices;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
