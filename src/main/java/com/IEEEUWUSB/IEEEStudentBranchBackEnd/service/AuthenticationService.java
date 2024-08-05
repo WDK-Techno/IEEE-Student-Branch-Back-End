@@ -52,13 +52,10 @@ public class AuthenticationService {
 
         var memberRole = roleServices.getRoleByName("Member");
         if(memberRole != null){
-
-            Set<Role> roles = new HashSet<>();
-            roles.add(memberRole);
             var savedUser = repository.save(user);
             var userRoleDetails = UserRoleDetails.builder()
                     .user(savedUser)
-                    .role(roles)
+                    .role(memberRole)
                     .isActive(true)
                     .type(memberRole.getType())
                     .start_date(LocalDateTime.now()).build();

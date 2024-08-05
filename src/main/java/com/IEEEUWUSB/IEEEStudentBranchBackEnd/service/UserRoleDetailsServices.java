@@ -29,17 +29,17 @@ public class UserRoleDetailsServices {
 
     public boolean isPolicyAvailable(UserRoleDetails userData, String policyCode) {
         if (userData != null && userData.getRole() != null) {
-            for (Role role : userData.getRole()) {
-                if (role.getPolicies() != null) {
-                    for (Policy policy : role.getPolicies()) {
-                        if (policyCode.equals(policy.getPolicyCode())) {
-                            return true;
-                        }
+            Role role = userData.getRole();  // Assuming there's only one role
+            if (role.getPolicies() != null) {
+                for (Policy policy : role.getPolicies()) {
+                    if (policyCode.equals(policy.getPolicyCode())) {
+                        return true;
                     }
                 }
             }
         }
         return false;
     }
+
 
 }
