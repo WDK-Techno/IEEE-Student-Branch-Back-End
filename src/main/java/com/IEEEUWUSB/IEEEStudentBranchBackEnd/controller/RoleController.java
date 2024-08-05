@@ -2,10 +2,14 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.PolicyService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.RoleServices;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,10 +28,17 @@ public class RoleController {
     private final RoleServices roleServices;
 
     @Autowired
+    public final OUService ouService;
+
+    @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
 
-    public RoleController(RoleServices roleServices) {
+    @Autowired
+    private UserService userService;
+
+    public RoleController(RoleServices roleServices, OUService ouService) {
         this.roleServices = roleServices;
+        this.ouService = ouService;
     }
 
     @PostMapping
@@ -69,15 +80,12 @@ public class RoleController {
                                                      @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<Role>> commonResponseDTO = new CommonResponseDTO<>();
 
-        User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
-        if (isOtherPolicyAvailable) {
+        try {
             Page<Role> data = roleServices.getAllRole(page, search, type);
             commonResponseDTO.setData(data);
             commonResponseDTO.setMessage("Successfully retrieved Roles");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-        } else {
+        } catch (Exception e) {
             commonResponseDTO.setMessage("No Authority to Get Roles");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
@@ -140,35 +148,68 @@ public class RoleController {
         }
     }
 
-//    @PostMapping(value = "/role/{roleID}/assign/{userId}")
-//    public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID,@PathVariable int userId) {
-//        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
-//        User user = (User) request.getAttribute("user");
-//        User
-//        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-//        boolean isExcomAssignAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ASSIGN");
-//        if (isExcomAssignAvailable) {
-//            try {
-//                var NewuserRoleDetails = UserRoleDetails.builder()
-//                        .user(savedUser)
-//                        .role(savedRole)
-//                        .isActive(true)
-//                        .type(savedRole.getType())
-//                        .start_date(LocalDateTime.now()).build();
-//
-//                userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
-////                String message = roleServices.deleteRole(roleID);
-//                commonResponseDTO.setMessage(message);
-//                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-//            } catch (Exception e) {
-//                commonResponseDTO.setMessage("Failed to Delete Role");
-//                commonResponseDTO.setError(e.getMessage());
-//                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-//            }
-//
-//        } else {
-//            commonResponseDTO.setMessage("No Authority to Delete Role");
-//            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
-//        }
-//    }
+    @PostMapping(value = "/{roleID}/assign/{userId}/{ouId}")
+    public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID, @PathVariable int userId, @PathVariable int ouId) {
+        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXOM");
+        boolean isExcomAssignAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ASSIGN");
+        if (isExcomAssignAvailable) {
+            OU ou = ouService.getOUById(ouId);
+            User subuser = userService.getUserId(userId);
+            Role role = roleServices.getRoleById(roleID);
+            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.getuserRoleDetails(subuser, true, "EXOM");
+            try {
+                if (subuserRoleDetails != null) {
+                    if (role == subuserRoleDetails.getRole()) {
+                        commonResponseDTO.setMessage("Already Assigned Role");
+                        commonResponseDTO.setError(null);
+                        return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                    }
+                    subuserRoleDetails.setEnd_date(LocalDateTime.now());
+                    subuserRoleDetails.setIsActive(false);
+                    userRoleDetailsServices.createUserRoleDetails(subuserRoleDetails);
+                }
+
+                if (ou == null) {
+                    commonResponseDTO.setMessage("OU not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                if (subuser == null) {
+                    commonResponseDTO.setMessage("User not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                if (role == null) {
+                    commonResponseDTO.setMessage("Role not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+
+                var NewuserRoleDetails = UserRoleDetails.builder()
+                        .user(subuser)
+                        .role(role)
+                        .isActive(true)
+                        .type(role.getType())
+                        .ou(ou)
+                        .start_date(LocalDateTime.now()).build();
+
+                userRoleDetailsServices.createUserRoleDetails(NewuserRoleDetails);
+                commonResponseDTO.setMessage("Successfully Assign Role");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("Failed to Delete Role");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            commonResponseDTO.setMessage("No Authority to Assign Role");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+    }
 }
