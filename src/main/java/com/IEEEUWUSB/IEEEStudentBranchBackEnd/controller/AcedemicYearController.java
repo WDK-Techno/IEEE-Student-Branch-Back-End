@@ -3,7 +3,11 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.AcademicYear;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AcademicYearService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -20,62 +24,87 @@ public class AcedemicYearController {
 
     @Autowired
     private final AcademicYearService academicYearService;
-
+    @Autowired
+    private UserRoleDetailsServices userRoleDetailsServices;
 
     public AcedemicYearController(AcademicYearService academicYearService) {
         this.academicYearService = academicYearService;
     }
 
     @PostMapping
-    public ResponseEntity<CommonResponseDTO> addAcademicYear(@RequestBody AcademicYear academicYear) {
+    public ResponseEntity<CommonResponseDTO> addAcademicYear(HttpServletRequest request, @RequestBody AcademicYear academicYear) {
         CommonResponseDTO<AcademicYear> commonResponseDTO = new CommonResponseDTO<>();
-        try {
-            AcademicYear newAcademicYear = academicYearService.createAcademicYear(academicYear);
-            commonResponseDTO.setData(newAcademicYear);
-            commonResponseDTO.setMessage("Successfully added academic year");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
-        } catch (Exception e) {
-            boolean exist = academicYearService.alreadyExistsAcademicYear(academicYear);
-            if (exist) {
-                commonResponseDTO.setMessage("academic year already exists");
-                commonResponseDTO.setError(e.getMessage());
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CONFLICT);
-            } else {
-                commonResponseDTO.setMessage("failed to add academic year");
-                commonResponseDTO.setError(e.getMessage());
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-            }
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
+        if (isOtherPolicyAvailable) {
+            try {
+                AcademicYear newAcademicYear = academicYearService.createAcademicYear(academicYear);
+                commonResponseDTO.setData(newAcademicYear);
+                commonResponseDTO.setMessage("Successfully added academic year");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+            } catch (Exception e) {
+                boolean exist = academicYearService.alreadyExistsAcademicYear(academicYear);
+                if (exist) {
+                    commonResponseDTO.setMessage("academic year already exists");
+                    commonResponseDTO.setError(e.getMessage());
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.CONFLICT);
+                } else {
+                    commonResponseDTO.setMessage("failed to add academic year");
+                    commonResponseDTO.setError(e.getMessage());
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
 
+            }
+        } else {
+            commonResponseDTO.setMessage("No Authority to Add Academic Year");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
 
     }
 
     @GetMapping
-    public ResponseEntity<CommonResponseDTO> getAcademicYear(@RequestParam(required = false) String status,
+    public ResponseEntity<CommonResponseDTO> getAcademicYear(HttpServletRequest request, @RequestParam(required = false) String status,
                                                              @RequestParam(required = false) String academicYear,
                                                              @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<AcademicYear>> commonResponseDTO = new CommonResponseDTO<>();
-        Page<AcademicYear> data = academicYearService.getAllAcademicYears(page, status, academicYear);
-        commonResponseDTO.setData(data);
-        commonResponseDTO.setMessage("Successfully retrieved academic year");
-        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
+        if (isOtherPolicyAvailable) {
+
+            Page<AcademicYear> data = academicYearService.getAllAcademicYears(page, status, academicYear);
+            commonResponseDTO.setData(data);
+            commonResponseDTO.setMessage("Successfully retrieved academic year");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } else {
+            commonResponseDTO.setMessage("No Authority to Get Academic Year");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
     }
 
 
     @PutMapping
-    public ResponseEntity<CommonResponseDTO> updateAcademicYear(@RequestBody AcademicYear academicYear) {
+    public ResponseEntity<CommonResponseDTO> updateAcademicYear(HttpServletRequest request, @RequestBody AcademicYear academicYear) {
         CommonResponseDTO<AcademicYear> commonResponseDTO = new CommonResponseDTO<>();
 
         if (Objects.nonNull(academicYear.getAcedemicId()) && academicYear.getAcedemicId() != 0) {
-
-            try{
-                String message = academicYearService.updateAcademicYear(academicYear);
-                commonResponseDTO.setMessage(message);
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-            }catch (Exception e) {
-                commonResponseDTO.setMessage("Academic Year Edited failed");
-                commonResponseDTO.setError(e.getMessage());
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            User user = (User) request.getAttribute("user");
+            UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+            boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
+            if (isOtherPolicyAvailable) {
+                try {
+                    String message = academicYearService.updateAcademicYear(academicYear);
+                    commonResponseDTO.setMessage(message);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+                } catch (Exception e) {
+                    commonResponseDTO.setMessage("Academic Year Edited failed");
+                    commonResponseDTO.setError(e.getMessage());
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                commonResponseDTO.setMessage("No Authority to Edit Academic Year");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
             }
 
         } else {

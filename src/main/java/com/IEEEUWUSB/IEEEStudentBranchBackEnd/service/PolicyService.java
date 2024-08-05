@@ -117,4 +117,12 @@ public class PolicyService {
     }
 
 
+    public String deletePolicy(int policyID) {
+        if (policyRepo.existsById(policyID)){
+            policyRepo.deleteById(policyID);
+            return "Policy deleted successfully";
+        }else {
+            return "Policy Not Found";
+        }
+    }
 }
