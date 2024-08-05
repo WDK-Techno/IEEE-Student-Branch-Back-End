@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.RoleRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,11 @@ public class RoleServices {
 
     public Role getRoleById(int roleId) {
         return roleRepo.findById(roleId).get();
+    }
+
+    public Role getRoleByIdNull(int roleId) {
+        Optional<Role> optionalRole = roleRepo.findById(roleId);
+        return optionalRole.orElse(null);
     }
 
 
