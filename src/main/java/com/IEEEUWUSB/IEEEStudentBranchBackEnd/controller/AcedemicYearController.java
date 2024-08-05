@@ -65,23 +65,14 @@ public class AcedemicYearController {
     }
 
     @GetMapping
-    public ResponseEntity<CommonResponseDTO> getAcademicYear(HttpServletRequest request, @RequestParam(required = false) String status,
+    public ResponseEntity<CommonResponseDTO> getAcademicYear(@RequestParam(required = false) String status,
                                                              @RequestParam(required = false) String academicYear,
                                                              @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<AcademicYear>> commonResponseDTO = new CommonResponseDTO<>();
-        User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
-        if (isOtherPolicyAvailable) {
-
-            Page<AcademicYear> data = academicYearService.getAllAcademicYears(page, status, academicYear);
-            commonResponseDTO.setData(data);
-            commonResponseDTO.setMessage("Successfully retrieved academic year");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-        } else {
-            commonResponseDTO.setMessage("No Authority to Get Academic Year");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
-        }
+        Page<AcademicYear> data = academicYearService.getAllAcademicYears(page, status, academicYear);
+        commonResponseDTO.setData(data);
+        commonResponseDTO.setMessage("Successfully retrieved academic year");
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
     }
 
 
