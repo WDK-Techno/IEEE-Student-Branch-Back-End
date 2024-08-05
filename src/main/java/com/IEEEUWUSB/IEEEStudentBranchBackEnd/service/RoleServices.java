@@ -64,4 +64,13 @@ public class RoleServices {
             return "Role Not Found";
         }
     }
+
+    public String deleteRole(int roleID) {
+        if (roleRepo.existsById(roleID)) {
+            roleRepo.deleteById(roleID);
+            return "Role deleted successfully";
+        } else {
+            return "Role Not Found";
+        }
+    }
 }

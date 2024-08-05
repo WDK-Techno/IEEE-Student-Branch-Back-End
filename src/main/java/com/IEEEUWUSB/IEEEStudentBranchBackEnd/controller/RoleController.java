@@ -2,10 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.PolicyService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.RoleServices;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
@@ -117,5 +114,28 @@ public class RoleController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    @DeleteMapping(value = "/deleteRole/{roleID}")
+    public ResponseEntity<CommonResponseDTO> deletePolicy(HttpServletRequest request, @PathVariable int roleID) {
+        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
+        if (isOtherPolicyAvailable) {
+            try {
+                String message = roleServices.deleteRole(roleID);
+                commonResponseDTO.setMessage(message);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("Failed to Delete Role");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            commonResponseDTO.setMessage("No Authority to Delete Role");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
     }
 }
