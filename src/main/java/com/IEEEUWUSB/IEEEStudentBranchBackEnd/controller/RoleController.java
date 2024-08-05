@@ -152,13 +152,13 @@ public class RoleController {
     public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID, @PathVariable int userId, @PathVariable int ouId) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXOM");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isExcomAssignAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ASSIGN");
         if (isExcomAssignAvailable) {
             OU ou = ouService.getOUById(ouId);
             User subuser = userService.getUserId(userId);
             Role role = roleServices.getRoleById(roleID);
-            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.getuserRoleDetails(subuser, true, "EXOM");
+            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.getuserRoleDetails(subuser, true, "EXCOM");
             try {
                 if (subuserRoleDetails != null) {
                     if (role == subuserRoleDetails.getRole()) {
