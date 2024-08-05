@@ -44,4 +44,12 @@ public class OUService {
             return null;
         }
     }
+    public String deleteOU(int ouID) {
+        if (ouRepo.existsById(ouID)) {
+            ouRepo.deleteById(ouID);
+            return "OU successfully deleted";
+        }else {
+            return "OU Not Found";
+        }
+    }
 }

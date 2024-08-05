@@ -103,6 +103,7 @@ public class SecurityConfiguration {
                 policies.add(Policy.builder().policy("Project_assign").policyCode("PROJECT_ASSIGN").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project_events").policyCode("PROJECT_EVENT").type("MAIN").build());
                 policies.add(Policy.builder().policy("Excom").policyCode("EXCOM").type("MAIN").build());
+                policies.add(Policy.builder().policy("Excom_All").policyCode("EXCOM_ALL").type("MAIN").build());
                 policies.add(Policy.builder().policy("Excom_task").policyCode("EXCOM_TASK").type("MAIN").build());
                 policies.add(Policy.builder().policy("Excom_task_assign").policyCode("EXCOM_TASK_ASSIGN").type("MAIN").build());
                 policies.add(Policy.builder().policy("Excom_assign").policyCode("EXCOM_ASSIGN").type("MAIN").build());
