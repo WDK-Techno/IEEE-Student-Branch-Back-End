@@ -197,9 +197,9 @@ public class UserController {
 
     @GetMapping(value = "/currentuser")
     public ResponseEntity<CommonResponseDTO> getCurrentUser(HttpServletRequest request) {
-        CommonResponseDTO<UserRoleDetails> commonResponseDTO = new CommonResponseDTO<>();
+        CommonResponseDTO<List<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetailsExom(user,true,"MAIN","EXCOM");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetailsExom(user,true,"MAIN","EXCOM");
         if (user != null) {
             commonResponseDTO.setData(userRoleDetails);
             commonResponseDTO.setMessage("user recieved");

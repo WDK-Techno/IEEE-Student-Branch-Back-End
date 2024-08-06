@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +29,8 @@ public class UserRoleDetailsServices {
     }
 
 
-    public UserRoleDetails getuserRoleDetailsExom(User user,boolean isActive, String type,String type2) {
-        Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
+    public List<UserRoleDetails> getuserRoleDetailsExom(User user,boolean isActive, String type,String type2) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
         return optionalRole.orElse(null);
     }
 
