@@ -1,4 +1,5 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.config;
+
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
@@ -18,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,18 +85,20 @@ public class SecurityConfiguration {
     }
 
 
-
     @Bean
     public CommandLineRunner initData(UserRoleDetailsServices userRoleDetailsServices) {
         return args -> {
-            if(policyService.getPolicyBycode("OTHER") == null){
+            if (policyService.getPolicyBycode("OTHER") == null) {
                 List<Policy> policies = new ArrayList<>();
+                List<User> users = new ArrayList<>();
                 var OtherPolicy = Policy.builder()
                         .policy("Other")
                         .policyCode("OTHER")
                         .type("MAIN").build();
                 Policy savedPolicy = policyService.CreatePolicy(OtherPolicy);
 
+
+                //policies
                 policies.add(Policy.builder().policy("Finance").policyCode("FINANCE").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project").policyCode("PROJECT").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("MAIN").build());
@@ -129,9 +133,11 @@ public class SecurityConfiguration {
                         .userRole("Member")
                         .type("MAIN")
                         .build();
-                roleServices.CreateRole(userRoleMember);
 
-                var savedRole = roleServices.CreateRole(userRole);
+
+                var memberUserRole = roleServices.CreateRole(userRoleMember);
+
+                var AdminRole = roleServices.CreateRole(userRole);
 
                 var newAdmin = User.builder()
                         .email("aasadh2000@gmail.com")
@@ -146,17 +152,34 @@ public class SecurityConfiguration {
                 var savedUser = userService.saveUser(newAdmin);
                 var userRoleDetails = UserRoleDetails.builder()
                         .user(savedUser)
-                        .role(savedRole)
+                        .role(AdminRole)
                         .isActive(true)
-                        .type(savedRole.getType())
+                        .type(AdminRole.getType())
                         .start_date(LocalDateTime.now()).build();
 
                 userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
+
+                //test users
+                for (char c = 'a'; c <= 'z'; c++) {
+                    users.add(User.builder().email(c + "@gmail.com").password(passwordEncoder.encode("123")).firstName(c + "Mohamed").lastName(c + "Aasath").contactNo("0755701765").createdDate(LocalDateTime.now()).status("VERIFIED").build());
+                }
+
+
+                users.forEach(user -> {
+                    var newuser = userService.saveUser(user);
+                    var testuser = UserRoleDetails.builder()
+                            .user(newuser)
+                            .role(memberUserRole)
+                            .isActive(true)
+                            .type(memberUserRole.getType())
+                            .start_date(LocalDateTime.now()).build();
+
+                    userRoleDetailsServices.createUserRoleDetails(testuser);
+                });
             }
 
         };
     }
-
 
 
 }
