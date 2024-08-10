@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -32,6 +34,9 @@ public class Project {
     private String projectLogo;
 
     private String status;
+
+    @OneToMany
+    private Set<OU> uos = new HashSet<>();
 
 
 
