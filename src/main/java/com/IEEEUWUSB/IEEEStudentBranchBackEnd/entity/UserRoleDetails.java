@@ -35,6 +35,7 @@ public class UserRoleDetails {
    @ManyToOne
    private Role role;
 
+
    @ManyToOne
    private User user;
 

@@ -1,11 +1,10 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
-
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.OURepo;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRoleDetailsRepo;
 import jakarta.transaction.Transactional;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +17,9 @@ import java.util.Optional;
 public class OUService {
     @Autowired
     OURepo ouRepo;
+
+    @Autowired
+    UserRoleDetailsRepo userRoleDetailsRepo;
 
     public OU createOU(OU ou) {
         return ouRepo.save(ou);
@@ -40,6 +42,13 @@ public class OUService {
 
     public List<OU> getAllOUs() {
         List<OU> ouList = ouRepo.findAll();
+        return ouList;
+    }
+
+    public List<OU> getAllOUsByUser(User user) {
+        List<UserRoleDetails> userRoleDetailsData = userRoleDetailsRepo.findByExcomByUser(user);
+        List<OU> ouList = new ArrayList<>();
+        userRoleDetailsData.forEach(item -> ouList.add(item.getOu()));
         return ouList;
     }
 

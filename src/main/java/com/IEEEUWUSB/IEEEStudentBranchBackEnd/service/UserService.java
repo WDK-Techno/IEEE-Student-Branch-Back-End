@@ -10,8 +10,7 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -119,6 +119,16 @@ public class UserService {
 
     public User saveUser(User user) {
        return userRepo.save(user);
+    }
+
+    public Page<UserDTO> getAllusers(Integer page, String search) {
+        Pageable pageable = PageRequest.of(page, 15);
+        Page<User> userPage = userRepo.finduser(search, pageable);
+        List<UserDTO> userDTOs = userPage.getContent().stream()
+                .map(UserDTO::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(userDTOs, pageable, userPage.getTotalElements());
     }
 
 }

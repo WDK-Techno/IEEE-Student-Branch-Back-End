@@ -30,8 +30,7 @@ public class OU {
     @Column(nullable = false)
     private String ou_short_name;
 
-    @OneToMany
-    private Set<Project> projects = new HashSet<>();
+
 
 
 

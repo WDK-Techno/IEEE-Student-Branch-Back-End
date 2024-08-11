@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,7 +82,7 @@ public class OUController {
 
     @GetMapping(value = "/getOus")
     public ResponseEntity<CommonResponseDTO> getAllOus(HttpServletRequest request) {
-        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        CommonResponseDTO<List<OU>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isAllPOlicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
@@ -89,7 +90,7 @@ public class OUController {
         if (isAllPOlicyAvailable) {
             try {
                 List<OU> data = ouService.getAllOUs();
-                commonResponseDTO.setData((OU) data);
+                commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved Ous");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
 
@@ -99,9 +100,19 @@ public class OUController {
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
         } else {
-            commonResponseDTO.setError("");
-            commonResponseDTO.setMessage("under construction");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            try {
+
+                List<OU> ouList =ouService.getAllOUsByUser(user);
+                commonResponseDTO.setData(ouList);
+
+                commonResponseDTO.setMessage("Successfully retrieved Ous sep");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+            } catch (Exception e) {
+                commonResponseDTO.setError(e.getMessage());
+                commonResponseDTO.setMessage("Failed to retrieve Ous");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
         }
     }
 
