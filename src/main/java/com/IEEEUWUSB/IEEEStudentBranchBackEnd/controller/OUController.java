@@ -1,22 +1,20 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserRoleDetailsDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -111,6 +109,54 @@ public class OUController {
             } catch (Exception e) {
                 commonResponseDTO.setError(e.getMessage());
                 commonResponseDTO.setMessage("Failed to retrieve Ous");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        }
+    }
+
+    @GetMapping(value = "/getExcom")
+    public ResponseEntity<CommonResponseDTO<Page<UserRoleDetailsDTO>>> getExcom(HttpServletRequest request,  @RequestParam(required = false) String search,
+                                                                                @RequestParam(required = false) Integer ouid,
+                                                                                @RequestParam(defaultValue = "0") int page) {
+        CommonResponseDTO<Page<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
+//        CommonResponseDTO<List<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isAllPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
+
+        if (isAllPolicyAvailable) {
+            try {
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid);
+                // Convert to DTOs
+                List<UserRoleDetailsDTO> userRoleDetailsDTOs = data.getContent().stream()
+                        .map(UserRoleDetailsDTO::convertToUserRoleDTO)
+                        .collect(Collectors.toList());
+                Page<UserRoleDetailsDTO> dtoPage = new PageImpl<>(userRoleDetailsDTOs, data.getPageable(), data.getTotalElements());
+                commonResponseDTO.setData(dtoPage);
+                commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+            } catch (Exception e) {
+                commonResponseDTO.setError(e.getMessage());
+                commonResponseDTO.setMessage("Failed to retrieve EXCOM Members");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            try {
+                UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+                OU ou = (OU) userRoleDetailsExcom.getOu();
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID());
+                List<UserRoleDetailsDTO> userRoleDetailsDTOs = data.getContent().stream()
+                        .map(UserRoleDetailsDTO::convertToUserRoleDTO)
+                        .collect(Collectors.toList());
+                Page<UserRoleDetailsDTO> dtoPage = new PageImpl<>(userRoleDetailsDTOs, data.getPageable(), data.getTotalElements());
+                commonResponseDTO.setData(dtoPage);
+                commonResponseDTO.setMessage("Successfully retrieved respective Excom Members");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+            } catch (Exception e) {
+                commonResponseDTO.setError(e.getMessage());
+                commonResponseDTO.setMessage("Failed to retrieve respective Excom Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
         }

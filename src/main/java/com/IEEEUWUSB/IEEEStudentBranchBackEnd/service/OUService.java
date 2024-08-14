@@ -41,8 +41,7 @@ public class OUService {
     }
 
     public List<OU> getAllOUs() {
-        List<OU> ouList = ouRepo.findAll();
-        return ouList;
+        return ouRepo.findAll();
     }
 
     public List<OU> getAllOUsByUser(User user) {

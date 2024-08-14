@@ -1,13 +1,13 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRoleDetailsRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +33,14 @@ public class UserRoleDetailsServices {
         Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
         return optionalRole.orElse(null);
     }
+
+    public Page<UserRoleDetails> getAllExcomUserDetails(Integer page, String search, Integer ouid){
+        Pageable pageable = PageRequest.of(page, 15);
+        return userRoleDetailsRepo.findAllExcomList(search, ouid, pageable);
+    }
+//    public List<UserRoleDetails> getOUExcomUserDetailsByOU(OU ou){
+//        return userRoleDetailsRepo.findExcomListByOu(ou);
+//    }
 
     public boolean isPolicyAvailable(UserRoleDetails userData, String policyCode) {
         if (userData != null && userData.getRole() != null) {
