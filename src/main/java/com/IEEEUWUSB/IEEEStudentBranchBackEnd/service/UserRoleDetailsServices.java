@@ -34,6 +34,15 @@ public class UserRoleDetailsServices {
         return optionalRole.orElse(null);
     }
 
+
+    public List<UserRoleDetails> getuserRoleDetailsExomByUserRole(Role role,boolean isActive, String type) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserRoleAndIsActiveAndTypeExom(role,isActive,type);
+        return optionalRole.orElse(null);
+    }
+
+
+
+
     public Page<UserRoleDetails> getAllExcomUserDetails(Integer page, String search, Integer ouid){
         Pageable pageable = PageRequest.of(page, 15);
         return userRoleDetailsRepo.findAllExcomList(search, ouid, pageable);
