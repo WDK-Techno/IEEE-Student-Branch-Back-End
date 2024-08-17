@@ -222,7 +222,7 @@ public class UserController {
 
 
 
-    @GetMapping(value = "")
+    @GetMapping
     public ResponseEntity<CommonResponseDTO> getAllUsers(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page) {
