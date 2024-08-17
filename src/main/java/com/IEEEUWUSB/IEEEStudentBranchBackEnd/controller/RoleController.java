@@ -215,7 +215,7 @@ public class RoleController {
                 commonResponseDTO.setMessage("Successfully Assign Role");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
-                commonResponseDTO.setMessage("Failed to Delete Role");
+                commonResponseDTO.setMessage("Failed to Assign Role");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
