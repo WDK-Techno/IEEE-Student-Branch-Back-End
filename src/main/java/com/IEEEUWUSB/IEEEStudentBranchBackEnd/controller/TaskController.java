@@ -40,8 +40,9 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<CommonResponseDTO> addTask(HttpServletRequest request, @RequestBody TaskCreateDTO task) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO();
+        boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("NORMAL") || task.getPriority().equals("LOW") ;
         boolean typeValidation = task.getType().equals("EXCOM") || task.getType().equals("PROJECT");
-        if (typeValidation) {
+        if (typeValidation && priorityValidation) {
             User user = (User) request.getAttribute("user");
             UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
             UserRoleDetails userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
@@ -75,7 +76,7 @@ public class TaskController {
             }
 
         } else {
-            commonResponseDTO.setMessage("Invalid Task Type");
+            commonResponseDTO.setMessage(typeValidation ? "Invalid Task Type" : "Invalid Task Priority");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }

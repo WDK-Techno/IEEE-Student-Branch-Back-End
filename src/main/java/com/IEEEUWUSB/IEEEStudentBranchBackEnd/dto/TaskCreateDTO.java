@@ -18,6 +18,7 @@ public class TaskCreateDTO {
     private Date start_date;
     private Date end_date;
     private Integer ou_id;
+    private String priority;
 
 
 
