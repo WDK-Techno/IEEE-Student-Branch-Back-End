@@ -191,8 +191,8 @@ public class UserController {
 
 
     @GetMapping(value = "/currentuser")
-    public ResponseEntity<CommonResponseDTO<List<UserRoleDetailsDTO>>> getCurrentUser(HttpServletRequest request) {
-        CommonResponseDTO<List<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
+    public ResponseEntity<CommonResponseDTO<List<UserRoleDetails>>> getCurrentUser(HttpServletRequest request) {
+        CommonResponseDTO<List<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         if (user == null) {
             commonResponseDTO.setError("User not found");
@@ -202,12 +202,8 @@ public class UserController {
         try {
             List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetailsExom(user, true, "MAIN", "EXCOM");
             if (userRoleDetails != null) {
-                // Convert to DTOs
-                List<UserRoleDetailsDTO> userRoleDetailsDTOs = userRoleDetails.stream()
-                        .map(UserRoleDetailsDTO::convertToUserRoleDTO)
-                        .collect(Collectors.toList());
 
-                commonResponseDTO.setData(userRoleDetailsDTOs);
+                commonResponseDTO.setData(userRoleDetails);
                 commonResponseDTO.setMessage("User roles received");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } else {
