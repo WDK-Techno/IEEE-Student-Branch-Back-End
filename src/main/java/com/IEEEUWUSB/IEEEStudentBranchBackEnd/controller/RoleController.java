@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @CrossOrigin
@@ -152,13 +154,16 @@ public class RoleController {
     public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID, @PathVariable int userId, @PathVariable int ouId) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isExcomAssignAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ASSIGN");
-        if (isExcomAssignAvailable) {
+        UserRoleDetails userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        UserRoleDetails userRoleDetailsExom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+        boolean isExcomAssignAvailablemMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
+        boolean isExcomAssignAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
+        if (isExcomAssignAvailableExcom || isExcomAssignAvailablemMain) {
             OU ou = ouService.getOUById(ouId);
             User subuser = userService.getUserId(userId);
             Role role = roleServices.getRoleById(roleID);
             UserRoleDetails subuserRoleDetails = userRoleDetailsServices.getuserRoleDetails(subuser, true, "EXCOM");
+            List<UserRoleDetails> otherUserRoleDetails = userRoleDetailsServices.getuserRoleDetailsExomByUserRole(role,true,"EXCOM");
             try {
                 if (subuserRoleDetails != null) {
                     if (role == subuserRoleDetails.getRole()) {
@@ -169,6 +174,14 @@ public class RoleController {
                     subuserRoleDetails.setEnd_date(LocalDateTime.now());
                     subuserRoleDetails.setIsActive(false);
                     userRoleDetailsServices.createUserRoleDetails(subuserRoleDetails);
+                }
+
+                if (otherUserRoleDetails != null && !otherUserRoleDetails.isEmpty()) {
+                    otherUserRoleDetails.forEach(userRoleDetails -> {
+                        userRoleDetails.setIsActive(false);
+                        userRoleDetails.setEnd_date(LocalDateTime.now());
+                        userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
+                    });
                 }
 
                 if (ou == null) {
@@ -202,7 +215,7 @@ public class RoleController {
                 commonResponseDTO.setMessage("Successfully Assign Role");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
-                commonResponseDTO.setMessage("Failed to Delete Role");
+                commonResponseDTO.setMessage("Failed to Assign Role");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }

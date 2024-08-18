@@ -1,9 +1,5 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo;
-
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

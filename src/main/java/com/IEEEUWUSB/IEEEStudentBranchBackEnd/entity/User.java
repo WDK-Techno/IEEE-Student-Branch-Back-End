@@ -1,5 +1,6 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,12 +24,15 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int userID;
 
+
+
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(unique = true)
     private String ieee_email;
 
+    @JsonIgnore
     @Column(columnDefinition = "TEXT", nullable = false)
     private String password;
 
