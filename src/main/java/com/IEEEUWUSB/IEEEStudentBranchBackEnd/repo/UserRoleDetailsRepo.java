@@ -28,7 +28,7 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
             "AND urd.type = 'EXCOM' " +
             "AND (:search IS NULL OR urd.user.firstName LIKE CONCAT('%', :search, '%') OR urd.user.lastName LIKE CONCAT('%', :search, '%') OR urd.user.contactNo LIKE CONCAT('%', :search, '%') )  " +
             "AND (:ouid IS NULL OR urd.ou.ouID = :ouid) " +
-            "ORDER BY urd.userRoleDetailsId")
+            "ORDER BY urd.role.priorityMain, urd.role.prioritySub")
     Page<UserRoleDetails> findAllExcomList(String search, Integer ouid, Pageable pageable);
 
 

@@ -11,7 +11,7 @@ public interface RoleRepo extends JpaRepository<Role, Integer> {
     @Query("SELECT role FROM Role role " +
             "WHERE (:search IS NULL OR role.userRole LIKE CONCAT(:search, '%')) " +
             "AND (:type IS NULL OR role.type LIKE CONCAT(:type, '%')) " +
-            "ORDER BY role.roleID DESC")
+            "ORDER BY role.priorityMain, role.prioritySub")
     Page<Role> findAllRoles(String search, String type,
                             Pageable pageable);
 

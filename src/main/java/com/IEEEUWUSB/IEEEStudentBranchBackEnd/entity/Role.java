@@ -28,7 +28,9 @@ public class Role {
     @Column(nullable = false)
     private String type;
 
-    private Integer priority;
+    private Integer priorityMain;
+
+    private Integer prioritySub;
 
     @ManyToMany
     private Set<Policy> policies = new HashSet<>();
