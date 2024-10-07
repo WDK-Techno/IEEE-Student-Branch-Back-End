@@ -23,11 +23,16 @@ public class UserRoleDetailsServices {
         return userRoleDetailsRepo.save(userRoleDetails);
     }
 
-    public UserRoleDetails getuserRoleDetails(User user,boolean isActive, String type) {
-        Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndType(user,isActive,type);
+    public List<UserRoleDetails> getuserRoleDetails(User user,boolean isActive, String type) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActive(user,isActive);
         return optionalRole.orElse(null);
     }
 
+
+    public UserRoleDetails findByUserAndIsActiveAndType(User user,boolean isActive, String type) {
+        Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndType(user,isActive,type);
+        return optionalRole.orElse(null);
+    }
 
     public List<UserRoleDetails> getuserRoleDetailsExom(User user,boolean isActive, String type,String type2) {
         Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
@@ -51,19 +56,24 @@ public class UserRoleDetailsServices {
 //        return userRoleDetailsRepo.findExcomListByOu(ou);
 //    }
 
-    public boolean isPolicyAvailable(UserRoleDetails userData, String policyCode) {
-        if (userData != null && userData.getRole() != null) {
-            Role role = userData.getRole();  // Assuming there's only one role
-            if (role.getPolicies() != null) {
-                for (Policy policy : role.getPolicies()) {
-                    if (policyCode.equals(policy.getPolicyCode())) {
-                        return true;
+    public boolean isPolicyAvailable(List<UserRoleDetails> userDataArray, String policyCode) {
+        if (userDataArray != null) {
+            for (UserRoleDetails userData : userDataArray) {
+                if (userData != null && userData.getRole() != null) {
+                    Role role = userData.getRole();  // Assuming there's only one role
+                    if (role.getPolicies() != null) {
+                        for (Policy policy : role.getPolicies()) {
+                            if (policyCode.equals(policy.getPolicyCode())) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
         }
         return false;
     }
+
 
 
 }

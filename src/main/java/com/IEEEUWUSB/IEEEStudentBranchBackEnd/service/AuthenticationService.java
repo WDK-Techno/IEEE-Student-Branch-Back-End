@@ -16,6 +16,7 @@ import org.springframework.web.servlet.View;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -103,7 +104,7 @@ public class AuthenticationService {
 
         }
 
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user,true,"MAIN");
+        UserRoleDetails userRoleDetails = userRoleDetailsServices.findByUserAndIsActiveAndType(user,true,"MAIN");
        return AuthenticationResponseDTO.builder()
                 .accessToken(jwtToken)
                 .userRoleDetails(userRoleDetails)
