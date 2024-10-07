@@ -23,6 +23,7 @@ public class UserRoleDetailsServices {
         return userRoleDetailsRepo.save(userRoleDetails);
     }
 
+
     public List<UserRoleDetails> getuserRoleDetails(User user,boolean isActive, String type) {
         Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActive(user,isActive);
         return optionalRole.orElse(null);
@@ -71,7 +72,5 @@ public class UserRoleDetailsServices {
         }
         return false;
     }
-
-
 
 }

@@ -83,6 +83,7 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> getTask(HttpServletRequest request, @PathVariable int ouID) {
         CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO();
         User user = (User) request.getAttribute("user");
+
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isTaskPolicy = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK");
 
