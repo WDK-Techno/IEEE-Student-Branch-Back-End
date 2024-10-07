@@ -7,28 +7,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@Table(name = "policy")
-public class Policy {
+@Table(name = "otp")
+public class OTP {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int policyID;
+    private int otpId;
 
-    @Column(nullable = false)
-    private String policy;
+    private Integer otpCode;
 
-    @Column(nullable = false)
-    private String type;
+    private LocalDateTime exprieDate;
 
-    @Column(unique = true,nullable = false)
-    private String policyCode;
-
-
+    @OneToOne
+    private User user;
 }

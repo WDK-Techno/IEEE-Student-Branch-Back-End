@@ -2,11 +2,10 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,14 +14,16 @@ import java.util.List;
 public class AcademicYear {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int academicID;
+    @Column(name = "id")
+    private int acedemicId;
 
-    private String enrolledYear;
+    @Column(nullable = false)
+    private String enrolledBatch;
 
+    @Column(unique = true, nullable = false)
     private String academicYear;
 
+    @Column(nullable = false)
     private String status;
 
-    @OneToMany(mappedBy = "academicYear")
-    private List<User> users;
 }

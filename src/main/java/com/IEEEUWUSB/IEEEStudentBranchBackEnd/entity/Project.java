@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -16,6 +18,7 @@ import java.util.List;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int projectID;
 
     @Column(nullable = false)
@@ -32,15 +35,10 @@ public class Project {
 
     private String status;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_ou",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "ou_id")
-    )
-    private List<OU> ouList;
+    @OneToMany
+    private Set<OU> uos = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleProject> userRoleProjects;
+
+
 
 }

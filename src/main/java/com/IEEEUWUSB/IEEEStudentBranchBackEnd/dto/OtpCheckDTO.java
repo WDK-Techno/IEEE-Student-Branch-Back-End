@@ -1,5 +1,6 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,12 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class RegisterDTO {
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OtpCheckDTO {
+    private Integer otp;
     private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private String contactNo;
-    private Integer academicId;
+    private String type;
 }

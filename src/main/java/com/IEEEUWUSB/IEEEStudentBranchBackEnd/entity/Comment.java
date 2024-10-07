@@ -7,28 +7,32 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@Table(name = "policy")
-public class Policy {
+@Table(name = "comment")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int policyID;
+    private int commentID;
 
-    @Column(nullable = false)
-    private String policy;
+    private String comment;
 
-    @Column(nullable = false)
-    private String type;
-
-    @Column(unique = true,nullable = false)
-    private String policyCode;
+    private LocalDateTime created_at;
 
 
+    @ManyToOne
+    private Project project;
+
+    @ManyToOne
+    private User user;
+
+
+    @ManyToOne
+    private Task task;
 }

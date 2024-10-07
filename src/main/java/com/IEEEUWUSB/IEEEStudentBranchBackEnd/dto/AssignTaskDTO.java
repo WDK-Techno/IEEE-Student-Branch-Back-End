@@ -9,12 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class RegisterDTO {
-
-    private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private String contactNo;
-    private Integer academicId;
+public class AssignTaskDTO {
+    private int taskId;
+    private Integer[] users;
 }

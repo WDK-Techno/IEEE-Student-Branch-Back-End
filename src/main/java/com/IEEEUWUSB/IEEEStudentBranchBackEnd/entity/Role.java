@@ -2,32 +2,48 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Table(name = "role")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int roleID;
+
+    @Column(unique = true, nullable = false)
     private String userRole;
+
+    @Column(nullable = false)
     private String type;
 
-//    @OneToMany(mappedBy = "role")
-//    private List<User> users;
+    private Integer priorityMain;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<Policy> policies;
+    private Integer prioritySub;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleOu> userRoleOus;
+    @ManyToMany
+    private Set<Policy> policies = new HashSet<>();
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleProject> userRoleProjects;
+    public void addPolicy(Policy policy) {
+        policies.add(policy);
+
+    }
+
+    public void removePolicy(Policy policy) {
+        policies.remove(policy);
+
+    }
+
+
 }
