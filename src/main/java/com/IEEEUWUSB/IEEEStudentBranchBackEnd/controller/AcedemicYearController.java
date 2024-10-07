@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import java.util.Objects;
 
 
@@ -36,7 +36,7 @@ public class AcedemicYearController {
     public ResponseEntity<CommonResponseDTO> addAcademicYear(HttpServletRequest request, @RequestBody AcademicYear academicYear) {
         CommonResponseDTO<AcademicYear> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -82,7 +82,7 @@ public class AcedemicYearController {
 
         if (Objects.nonNull(academicYear.getAcedemicId()) && academicYear.getAcedemicId() != 0) {
             User user = (User) request.getAttribute("user");
-            UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+            List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
             boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
             if (isOtherPolicyAvailable) {
                 try {
@@ -110,7 +110,7 @@ public class AcedemicYearController {
     public ResponseEntity<CommonResponseDTO> deletePolicy(HttpServletRequest request, @PathVariable int academicID) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
