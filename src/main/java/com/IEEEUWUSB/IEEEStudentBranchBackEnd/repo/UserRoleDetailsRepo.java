@@ -25,11 +25,14 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
     @Query("SELECT urd FROM UserRoleDetails urd " +
             "WHERE urd.isActive = true " +
             "AND urd.type = 'EXCOM' " +
-            "AND (:search IS NULL OR urd.user.firstName LIKE CONCAT('%', :search, '%') OR urd.user.lastName LIKE CONCAT('%', :search, '%') OR urd.user.contactNo LIKE CONCAT('%', :search, '%') )  " +
+            "AND (:search IS NULL OR urd.user.firstName LIKE CONCAT('%', :search, '%') " +
+            "OR urd.user.lastName LIKE CONCAT('%', :search, '%') " +
+            "OR urd.user.contactNo LIKE CONCAT('%', :search, '%')) " +
             "AND (:ouid IS NULL OR urd.ou.ouID = :ouid) " +
-            "AND (:ouid IS NULL OR urd.user.academicYear.acedemicId = :academicYearId) " +
+            "AND (:academicYearId IS NULL OR urd.user.academicYear.acedemicId = :academicYearId) " +  // Fixed this line
             "ORDER BY urd.role.priorityMain, urd.role.prioritySub")
-    Page<UserRoleDetails> findAllExcomList(String search, Integer ouid, Integer academicYearId,Pageable pageable);
+    Page<UserRoleDetails> findAllExcomList(String search, Integer ouid, Integer academicYearId, Pageable pageable);
+
 
 
 
