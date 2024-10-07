@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @CrossOrigin
@@ -33,7 +34,7 @@ public class PolicyController {
     public ResponseEntity<CommonResponseDTO> addPolicy(HttpServletRequest request, @RequestBody Policy policy) {
         CommonResponseDTO<Policy> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -69,7 +70,7 @@ public class PolicyController {
     ) {
         CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -93,7 +94,7 @@ public class PolicyController {
                                                        @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<Policy>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             Page<Policy> data = policyService.getAllPolicy(page, search, type);
@@ -115,7 +116,7 @@ public class PolicyController {
 
         if (Objects.nonNull(policy.getPolicyID()) && policy.getPolicyID() != 0) {
             User user = (User) request.getAttribute("user");
-            UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+            List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
             boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
             if (isOtherPolicyAvailable) {
 
@@ -144,7 +145,7 @@ public class PolicyController {
     public ResponseEntity<CommonResponseDTO> deletePolicy(HttpServletRequest request, @PathVariable int policyID) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {

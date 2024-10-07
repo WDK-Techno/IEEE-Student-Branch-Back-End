@@ -53,7 +53,7 @@ public class OTPController {
                 userService.saveUser(user);
                 otpService.deleteOTP(dbOtp);
                 String jwtToken = jwtUtils.generateTokenFromUsername(user);
-                var userroles = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+                var userroles = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "MAIN");
                 var data = AuthenticationResponseDTO.builder()
                         .accessToken(jwtToken)
                         .userRoleDetails(userroles).build();

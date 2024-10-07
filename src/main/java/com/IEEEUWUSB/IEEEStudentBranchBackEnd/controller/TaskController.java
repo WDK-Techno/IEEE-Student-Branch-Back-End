@@ -40,21 +40,19 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<CommonResponseDTO> addTask(HttpServletRequest request, @RequestBody TaskCreateDTO task) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO();
-        boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("NORMAL") || task.getPriority().equals("LOW") ;
+        boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("NORMAL") || task.getPriority().equals("LOW");
         boolean typeValidation = task.getType().equals("EXCOM") || task.getType().equals("PROJECT");
         if (typeValidation && priorityValidation) {
             User user = (User) request.getAttribute("user");
-            UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-            UserRoleDetails userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-            boolean isTaskPolicyAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
-            boolean isTaskPolicyAvailableMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_TASK");
-            if (isTaskPolicyAvailableExcom || isTaskPolicyAvailableMain) {
-
+            List<UserRoleDetails> userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+            boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
+            if (isTaskPolicyAvailable) {
+                UserRoleDetails ownuserRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 try {
                     Task newTask = Task.builder()
                             .start_date(task.getStart_date())
                             .end_date(task.getEnd_date())
-                            .ou(isTaskPolicyAvailableExcom ? userRoleDetailsExcom.getOu() : ouService.getOUById(task.getOu_id()))
+                            .ou(isTaskPolicyAvailable ? ownuserRoleDetailsExcom.getOu() : ouService.getOUById(task.getOu_id()))
                             .task_name(task.getTask_name())
                             .type(task.getType())
                             .status("TODO")
@@ -86,39 +84,18 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> getTask(HttpServletRequest request, @PathVariable int ouID) {
         CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO();
         User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isTaskPolicy = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK");
 
-        UserRoleDetails userRoleDetailsMain = null;
-        UserRoleDetails userRoleDetailsExcom = null;
-        boolean isTaskPolicyMain = false;
-        boolean isTaskPolicyExcom = false;
-
-        // Determine role and policy based on ouID
-        if (ouID != 0) {
-            userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-            if (userRoleDetailsMain != null) {
-                isTaskPolicyMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_TASK");
-            } else {
-                commonResponseDTO.setMessage("Task retrieved Failed");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-            if (userRoleDetailsExcom != null) {
-                isTaskPolicyExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
-            }else{
-                commonResponseDTO.setMessage("Task retrieved Failed");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-            }
-        }
 
         try {
-            if (isTaskPolicyExcom || isTaskPolicyMain) {
-                List<Task> Tasks = taksService.findAllTasksByOU(isTaskPolicyExcom ? userRoleDetailsExcom.getOu() : ouService.getOUById(ouID));
+            if (isTaskPolicy) {
+                List<Task> Tasks = taksService.findAllTasksByOU(ouService.getOUById(ouID));
                 commonResponseDTO.setData(Tasks);
                 commonResponseDTO.setMessage("Task retrieved Successfully");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } else {
-                List<Task> Tasks = taksService.findMyTasksByOU(user, userRoleDetailsExcom.getOu());
+                List<Task> Tasks = taksService.findMyTasksByOU(user, ouService.getOUById(ouID));
                 commonResponseDTO.setData(Tasks);
                 commonResponseDTO.setMessage("Task retrieved Successfully");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
@@ -137,12 +114,10 @@ public class TaskController {
     ) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-        UserRoleDetails userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isTaskPolicyAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK_ASSIGN");
-        boolean isTaskPolicyAvailableMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_TASK_ASSIGN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+        boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
 
-        if (isTaskPolicyAvailableExcom || isTaskPolicyAvailableMain) {
+        if (isTaskPolicyAvailable) {
 
             try {
                 String message = taksService.assign(assignTaskDTO.getTaskId(), assignTaskDTO.getUsers());

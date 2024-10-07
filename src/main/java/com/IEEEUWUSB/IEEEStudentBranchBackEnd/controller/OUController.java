@@ -34,7 +34,7 @@ public class OUController {
     public ResponseEntity<CommonResponseDTO> addOu(HttpServletRequest request, @RequestBody OU ou) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -58,7 +58,7 @@ public class OUController {
     public ResponseEntity<CommonResponseDTO> updateOu(HttpServletRequest request, @RequestBody OU ou) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -82,7 +82,7 @@ public class OUController {
     public ResponseEntity<CommonResponseDTO> getAllOus(HttpServletRequest request) {
         CommonResponseDTO<List<OU>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isAllPOlicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
 
         if (isAllPOlicyAvailable) {
@@ -121,7 +121,7 @@ public class OUController {
         CommonResponseDTO<Page<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
 //        CommonResponseDTO<List<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isAllPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
 
         if (isAllPolicyAvailable) {
@@ -143,7 +143,7 @@ public class OUController {
             }
         } else {
             try {
-                UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+                UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 OU ou = (OU) userRoleDetailsExcom.getOu();
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID());
                 List<UserRoleDetailsDTO> userRoleDetailsDTOs = data.getContent().stream()
@@ -166,7 +166,7 @@ public class OUController {
     public ResponseEntity<CommonResponseDTO> deleteOu(HttpServletRequest request, @PathVariable int ouID) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
