@@ -47,7 +47,7 @@ public class RoleController {
     public ResponseEntity<CommonResponseDTO> addRole(HttpServletRequest request, @RequestBody Role role) {
         CommonResponseDTO<Role> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -101,7 +101,7 @@ public class RoleController {
 
         if (Objects.nonNull(role.getRoleID()) && role.getRoleID() != 0) {
             User user = (User) request.getAttribute("user");
-            UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+            List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
             boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
             if (isOtherPolicyAvailable) {
                 try {
@@ -131,7 +131,7 @@ public class RoleController {
     public ResponseEntity<CommonResponseDTO> deletePolicy(HttpServletRequest request, @PathVariable int roleID) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
@@ -154,15 +154,15 @@ public class RoleController {
     public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID, @PathVariable int userId, @PathVariable int ouId) {
         CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        UserRoleDetails userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        UserRoleDetails userRoleDetailsExom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+        List<UserRoleDetails> userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetailsExom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
         boolean isExcomAssignAvailablemMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
         boolean isExcomAssignAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
         if (isExcomAssignAvailableExcom || isExcomAssignAvailablemMain) {
             OU ou = ouService.getOUById(ouId);
             User subuser = userService.getUserId(userId);
             Role role = roleServices.getRoleById(roleID);
-            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.getuserRoleDetails(subuser, true, "EXCOM");
+            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.findByUserAndIsActiveAndType(subuser, true, "EXCOM");
             List<UserRoleDetails> otherUserRoleDetails = userRoleDetailsServices.getuserRoleDetailsExomByUserRole(role,true,"EXCOM");
             try {
                 if (subuserRoleDetails != null) {

@@ -1,9 +1,5 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo;
-
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,13 +19,18 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
     List<UserRoleDetails> findByExcomByUser(User user);
 
 
+    Optional<List<UserRoleDetails>> findByUserAndIsActive(User user, boolean isActive);
+
+
     @Query("SELECT urd FROM UserRoleDetails urd " +
             "WHERE urd.isActive = true " +
             "AND urd.type = 'EXCOM' " +
             "AND (:search IS NULL OR urd.user.firstName LIKE CONCAT('%', :search, '%') OR urd.user.lastName LIKE CONCAT('%', :search, '%') OR urd.user.contactNo LIKE CONCAT('%', :search, '%') )  " +
             "AND (:ouid IS NULL OR urd.ou.ouID = :ouid) " +
+            "AND (:ouid IS NULL OR urd.user.academicYear.acedemicId = :academicYearId) " +
             "ORDER BY urd.role.priorityMain, urd.role.prioritySub")
-    Page<UserRoleDetails> findAllExcomList(String search, Integer ouid, Pageable pageable);
+    Page<UserRoleDetails> findAllExcomList(String search, Integer ouid, Integer academicYearId,Pageable pageable);
+
 
 
     @Query("SELECT urd FROM UserRoleDetails urd WHERE urd.role = :role AND urd.isActive = :isActive AND urd.type = :type")

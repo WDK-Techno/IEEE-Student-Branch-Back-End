@@ -1,13 +1,6 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.config;
-
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.PolicyService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.RoleServices;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +35,11 @@ public class SecurityConfiguration {
     private PolicyService policyService;
 
     @Autowired
+
+    private AcademicYearService academicYearService;
+
+    @Autowired
+
     private RoleServices roleServices;
 
     @Autowired
@@ -139,6 +137,16 @@ public class SecurityConfiguration {
 
                 var AdminRole = roleServices.CreateRole(userRole);
 
+
+                var AcedemicYear = AcademicYear.builder()
+                        .academicYear("2024")
+                        .enrolledBatch("15th Gen")
+                        .status("ACTIVE")
+                        .build();
+
+                var savedAcedemicYear = academicYearService.createAcademicYear(AcedemicYear);
+
+
                 var newAdmin = User.builder()
                         .email("aasadh2000@gmail.com")
                         .password(passwordEncoder.encode("123"))
@@ -147,6 +155,7 @@ public class SecurityConfiguration {
                         .contactNo("0755701765")
                         .createdDate(LocalDateTime.now())
                         .status("VERIFIED")
+                        .academicYear(savedAcedemicYear)
                         .build();
 
                 var savedUser = userService.saveUser(newAdmin);
@@ -161,7 +170,9 @@ public class SecurityConfiguration {
 
                 //test users
                 for (char c = 'a'; c <= 'z'; c++) {
-                    users.add(User.builder().email(c + "@gmail.com").password(passwordEncoder.encode("123")).firstName(c + "Mohamed").lastName(c + "Aasath").contactNo("0755701765").createdDate(LocalDateTime.now()).status("VERIFIED").build());
+
+                    users.add(User.builder().email(c + "@gmail.com").academicYear(savedAcedemicYear).password(passwordEncoder.encode("123")).firstName(c + "Mohamed").lastName(c + "Aasath").contactNo("0755701765").createdDate(LocalDateTime.now()).status("VERIFIED").build());
+
                 }
 
 

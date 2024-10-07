@@ -1,30 +1,38 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
+import java.time.LocalDateTime;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "academic")
-public class AcademicYear {
+@Builder
+@Table(name = "comment")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int acedemicId;
+    private int commentID;
 
-    @Column(nullable = false)
-    private String enrolledBatch;
+    private String comment;
 
-    @Column(unique = true, nullable = false)
-    private String academicYear;
+    private LocalDateTime created_at;
 
-    @Column(nullable = false)
-    private String status;
 
+    @ManyToOne
+    private Project project;
+
+    @ManyToOne
+    private User user;
+
+
+    @ManyToOne
+    private Task task;
 }
