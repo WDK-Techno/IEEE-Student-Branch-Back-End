@@ -59,7 +59,7 @@ public class CommentController {
 
 
         }else{
-            commonResponseDTO.setMessage("Type TASK Erorr");
+            commonResponseDTO.setMessage("");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
