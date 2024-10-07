@@ -115,11 +115,10 @@ public class OUController {
     }
 
     @GetMapping(value = "/getExcom")
-    public ResponseEntity<CommonResponseDTO<Page<UserRoleDetailsDTO>>> getExcom(HttpServletRequest request,  @RequestParam(required = false) String search,
+    public ResponseEntity<CommonResponseDTO<Page<UserRoleDetails>>> getExcom(HttpServletRequest request,  @RequestParam(required = false) String search,
                                                                                 @RequestParam(required = false) Integer ouid,
                                                                                 @RequestParam(defaultValue = "0") int page) {
-        CommonResponseDTO<Page<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
-//        CommonResponseDTO<List<UserRoleDetailsDTO>> commonResponseDTO = new CommonResponseDTO<>();
+        CommonResponseDTO<Page<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isAllPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
@@ -127,12 +126,7 @@ public class OUController {
         if (isAllPolicyAvailable) {
             try {
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid);
-                // Convert to DTOs
-                List<UserRoleDetailsDTO> userRoleDetailsDTOs = data.getContent().stream()
-                        .map(UserRoleDetailsDTO::convertToUserRoleDTO)
-                        .collect(Collectors.toList());
-                Page<UserRoleDetailsDTO> dtoPage = new PageImpl<>(userRoleDetailsDTOs, data.getPageable(), data.getTotalElements());
-                commonResponseDTO.setData(dtoPage);
+                commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
 
@@ -146,11 +140,7 @@ public class OUController {
                 UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 OU ou = (OU) userRoleDetailsExcom.getOu();
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID());
-                List<UserRoleDetailsDTO> userRoleDetailsDTOs = data.getContent().stream()
-                        .map(UserRoleDetailsDTO::convertToUserRoleDTO)
-                        .collect(Collectors.toList());
-                Page<UserRoleDetailsDTO> dtoPage = new PageImpl<>(userRoleDetailsDTOs, data.getPageable(), data.getTotalElements());
-                commonResponseDTO.setData(dtoPage);
+                commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved respective Excom Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
 
