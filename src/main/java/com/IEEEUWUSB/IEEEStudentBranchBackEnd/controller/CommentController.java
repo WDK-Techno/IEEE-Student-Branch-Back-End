@@ -85,27 +85,37 @@ public class CommentController {
         }
     }
 
-    @DeleteMapping("/comments/{commentID}")
-    public ResponseEntity<CommonResponseDTO> deleteComment(
-            HttpServletRequest request, @PathVariable int commentID) {
+    @DeleteMapping("/{commentID}")
+    public ResponseEntity<CommonResponseDTO<Void>> deleteComment(HttpServletRequest request, @PathVariable int commentID) {
         CommonResponseDTO<Void> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
 
         try {
             Comment comment = commentService.getCommentById(commentID);
+
             if (comment == null) {
                 commonResponseDTO.setMessage("Comment not found");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
-            } else {
+            }
+
+            // Check if the user has permission to delete the comment
+            if (!comment.getUser().equals(user)) {
                 commonResponseDTO.setMessage("No Authority to Delete Comment");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
             }
+
+            // Perform delete operation
+            commentService.deleteComment(commentID);
+            commonResponseDTO.setMessage("Comment deleted successfully");
+
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
         } catch (Exception e) {
             commonResponseDTO.setMessage("Failed to delete comment");
             commonResponseDTO.setError(e.getMessage());
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 }
