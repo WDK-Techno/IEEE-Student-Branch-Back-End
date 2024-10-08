@@ -69,4 +69,7 @@ public class TaksService {
     }
 
 
+    public Task getTaskById(int taskId) {
+        return taskRepo.findById(taskId).orElse(null);
+    }
 }
