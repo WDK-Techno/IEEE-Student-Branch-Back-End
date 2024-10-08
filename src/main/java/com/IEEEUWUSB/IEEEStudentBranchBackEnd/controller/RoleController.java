@@ -2,14 +2,9 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Role;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.RoleServices;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.TermYearRepo;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +32,9 @@ public class RoleController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TermYearService termYearService;
 
     public RoleController(RoleServices roleServices, OUService ouService) {
         this.roleServices = roleServices;
@@ -159,12 +157,13 @@ public class RoleController {
         boolean isExcomAssignAvailablemMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
         boolean isExcomAssignAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
         if (isExcomAssignAvailableExcom || isExcomAssignAvailablemMain) {
-            OU ou = ouService.getOUById(ouId);
-            User subuser = userService.getUserId(userId);
-            Role role = roleServices.getRoleById(roleID);
-            UserRoleDetails subuserRoleDetails = userRoleDetailsServices.findByUserAndIsActiveAndType(subuser, true, "EXCOM");
-            List<UserRoleDetails> otherUserRoleDetails = userRoleDetailsServices.getuserRoleDetailsExomByUserRole(role,true,"EXCOM");
             try {
+                OU ou = ouService.getOUById(ouId);
+                TermYear activeTermYear = termYearService.findByActiveStatus();
+                User subuser = userService.getUserId(userId);
+                Role role = roleServices.getRoleById(roleID);
+                UserRoleDetails subuserRoleDetails = userRoleDetailsServices.findByUserAndIsActiveAndType(subuser, true, "EXCOM");
+                List<UserRoleDetails> otherUserRoleDetails = userRoleDetailsServices.getuserRoleDetailsExomByUserRole(role,true,"EXCOM");
                 if (subuserRoleDetails != null) {
                     if (role == subuserRoleDetails.getRole()) {
                         commonResponseDTO.setMessage("Already Assigned Role");
@@ -202,12 +201,19 @@ public class RoleController {
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
                 }
 
+                if (activeTermYear == null) {
+                    commonResponseDTO.setMessage("There is no active term year");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
 
                 var NewuserRoleDetails = UserRoleDetails.builder()
                         .user(subuser)
                         .role(role)
                         .isActive(true)
                         .type(role.getType())
+                        .termyear(activeTermYear)
                         .ou(ou)
                         .start_date(LocalDateTime.now()).build();
 

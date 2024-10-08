@@ -8,9 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -24,7 +21,7 @@ public class UserRoleDetails {
     @Column(name = "id")
     private int userRoleDetailsId;
 
-    private LocalDateTime  start_date;
+    private LocalDateTime start_date;
 
     private LocalDateTime end_date;
 
@@ -32,17 +29,20 @@ public class UserRoleDetails {
 
     private String type;
 
-   @ManyToOne
-   private Role role;
+    @ManyToOne
+    private Role role;
 
 
-   @ManyToOne
-   private User user;
+    @ManyToOne
+    private User user;
 
-   @ManyToOne
-   private OU ou;
+    @ManyToOne
+    private OU ou;
 
-   @ManyToOne
-   private Project project;
+    @ManyToOne
+    private TermYear termyear;
+
+    @ManyToOne
+    private Project project;
 
 }
