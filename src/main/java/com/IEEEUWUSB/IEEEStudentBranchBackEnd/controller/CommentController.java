@@ -64,7 +64,7 @@ public class CommentController {
         }
     }
 
-    @GetMapping("/comment/{taskID}/comments")
+    @GetMapping("/{taskID}")
     public ResponseEntity<CommonResponseDTO<List<Comment>>> getCommentsByTask(
             HttpServletRequest request, @PathVariable int taskID) {
         CommonResponseDTO<List<Comment>> commonResponseDTO = new CommonResponseDTO<>();

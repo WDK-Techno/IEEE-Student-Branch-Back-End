@@ -25,7 +25,7 @@ public class CommentService {
 
     public List<Comment> getCommentsByTask(int taskID) {
         Task task = taskRepo.findById(taskID).get();
-        Optional<List<Comment>> optionalRole = commentRepo.findCommentsByTask(task);
+        Optional<List<Comment>> optionalRole = commentRepo.findByTask(task);
         return optionalRole.orElse(null);
     }
     public Comment getCommentById(int commentID) {

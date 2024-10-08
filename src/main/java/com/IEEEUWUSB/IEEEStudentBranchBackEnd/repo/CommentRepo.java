@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface CommentRepo extends JpaRepository<Comment,Integer> {
 
-    Optional<List<Comment>> findCommentsByTask(Task task);
+    Optional<List<Comment>> findByTask(Task task);
 
 }
