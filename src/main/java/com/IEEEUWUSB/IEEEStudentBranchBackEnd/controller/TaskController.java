@@ -124,7 +124,7 @@ public class TaskController {
     }
 
     @PutMapping("/status/{taskId}")
-    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request, @PathVariable int taskId, @RequestParam(required = false) String status) {
+    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request, @PathVariable int taskId, @RequestParam(required = true) String status) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
 
