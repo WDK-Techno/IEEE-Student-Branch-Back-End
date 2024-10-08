@@ -63,4 +63,49 @@ public class CommentController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/comment/{taskID}/comments")
+    public ResponseEntity<CommonResponseDTO<List<Comment>>> getCommentsByTask(
+            HttpServletRequest request, @PathVariable int taskID) {
+        CommonResponseDTO<List<Comment>> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+            List<Comment> comments = commentService.getCommentsByTask(taskID);
+            if (comments != null && !comments.isEmpty()) {
+                commonResponseDTO.setData(comments);
+                commonResponseDTO.setMessage("Comments retrieved successfully");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("No comments found for the specified task");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to retrieve comments");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/comments/{commentID}")
+    public ResponseEntity<CommonResponseDTO> deleteComment(
+            HttpServletRequest request, @PathVariable int commentID) {
+        CommonResponseDTO<Void> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+
+        try {
+            Comment comment = commentService.getCommentById(commentID);
+            if (comment == null) {
+                commonResponseDTO.setMessage("Comment not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            } else {
+                commonResponseDTO.setMessage("No Authority to Delete Comment");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to delete comment");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }
