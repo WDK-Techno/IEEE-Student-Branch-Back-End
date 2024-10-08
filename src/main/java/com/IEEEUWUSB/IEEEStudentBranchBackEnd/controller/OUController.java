@@ -117,7 +117,7 @@ public class OUController {
     @GetMapping(value = "/getExcom")
     public ResponseEntity<CommonResponseDTO<Page<UserRoleDetails>>> getExcom(HttpServletRequest request,  @RequestParam(required = false) String search,
                                                                                 @RequestParam(required = false) Integer ouid,
-                                                                             @RequestParam(required = false) Integer acedemicId,
+                                                                             @RequestParam(required = false) Integer termyearId,
                                                                                 @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
@@ -126,7 +126,7 @@ public class OUController {
 
         if (isAllPolicyAvailable) {
             try {
-                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid,acedemicId);
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid,termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
@@ -140,7 +140,7 @@ public class OUController {
             try {
                 UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 OU ou = (OU) userRoleDetailsExcom.getOu();
-                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(),acedemicId);
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(),termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved respective Excom Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
