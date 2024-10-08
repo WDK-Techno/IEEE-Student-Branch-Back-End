@@ -1,6 +1,5 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
-
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AssignTaskDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.TaskCreateDTO;
@@ -8,6 +7,7 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Task;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +24,7 @@ import java.util.List;
 public class TaskController {
 
     @Autowired
-    private final TaksService taksService;
-
+    private final TaksService taskService;
 
     @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
@@ -33,19 +32,21 @@ public class TaskController {
     @Autowired
     private OUService ouService;
 
-    public TaskController(TaksService taksService) {
-        this.taksService = taksService;
+    public TaskController(TaksService taskService) {
+        this.taskService = taskService;
     }
 
     @PostMapping
     public ResponseEntity<CommonResponseDTO> addTask(HttpServletRequest request, @RequestBody TaskCreateDTO task) {
-        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO();
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("MEDIUM") || task.getPriority().equals("LOW");
         boolean typeValidation = task.getType().equals("EXCOM") || task.getType().equals("PROJECT");
+
         if (typeValidation && priorityValidation) {
             User user = (User) request.getAttribute("user");
             List<UserRoleDetails> userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
             boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
+
             if (isTaskPolicyAvailable) {
                 try {
                     Task newTask = Task.builder()
@@ -57,8 +58,9 @@ public class TaskController {
                             .status("TODO")
                             .createdBy(user)
                             .build();
-                    Task newtask = taksService.saveTask(newTask);
-                    commonResponseDTO.setData(newtask);
+
+                    Task newTaskSaved = taskService.saveTask(newTask);
+                    commonResponseDTO.setData(newTaskSaved);
                     commonResponseDTO.setMessage("Task Added Successfully");
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
                 } catch (Exception e) {
@@ -66,100 +68,88 @@ public class TaskController {
                     commonResponseDTO.setError(e.getMessage());
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
                 }
-
             } else {
                 commonResponseDTO.setMessage("No Authority to Add Task");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
-
         } else {
             commonResponseDTO.setMessage(typeValidation ? "Invalid Task Type" : "Invalid Task Priority");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
 
-
     @GetMapping("/{ouID}")
     public ResponseEntity<CommonResponseDTO> getTask(HttpServletRequest request, @PathVariable int ouID) {
-        CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO();
+        CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isTaskPolicy = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK");
 
-
         try {
+            List<Task> tasks;
             if (isTaskPolicy) {
-                List<Task> Tasks = taksService.findAllTasksByOU(ouService.getOUById(ouID));
-                commonResponseDTO.setData(Tasks);
-                commonResponseDTO.setMessage("Task retrieved Successfully");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+                tasks = taskService.findAllTasksByOU(ouService.getOUById(ouID));
             } else {
-                List<Task> Tasks = taksService.findMyTasksByOU(user, ouService.getOUById(ouID));
-                commonResponseDTO.setData(Tasks);
-                commonResponseDTO.setMessage("Task retrieved Successfully");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+                tasks = taskService.findMyTasksByOU(user, ouService.getOUById(ouID));
             }
+            commonResponseDTO.setData(tasks);
+            commonResponseDTO.setMessage("Task retrieved Successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
-            commonResponseDTO.setMessage("Task retrieved Failed");
+            commonResponseDTO.setMessage("Task retrieval Failed");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
-
     }
 
-
     @PostMapping("/assign")
-    public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request,
-                                                        @RequestBody AssignTaskDTO assignTaskDTO
-    ) {
+    public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
         boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
 
         if (isTaskPolicyAvailable) {
-
             try {
-                String message = taksService.assign(assignTaskDTO.getTaskId(), assignTaskDTO.getUsers());
+                String message = taskService.assign(assignTaskDTO.getTaskId(), assignTaskDTO.getUsers());
                 commonResponseDTO.setMessage(message);
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
                 commonResponseDTO.setMessage(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
-
         } else {
             commonResponseDTO.setMessage("No Authority to Assign Task");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
 
-
     @PutMapping("/status/{taskId}")
-    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
-                                                        @PathVariable int taskID,
-                                                       @RequestParam(required = false) String status
-    ) {
+    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request, @PathVariable int taskId, @RequestParam(required = false) String status) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        // TODO,PROGRESS,COMPLETE validate
-      // get the task object by th id
-        // set the task status in to parameter status
-        // save task using savetask function
+
+        // Validate the status
+        boolean statusValidation = status.equals("TODO") || status.equals("PROGRESS") || status.equals("COMPLETE");
+
+        if (!statusValidation) {
+            commonResponseDTO.setMessage("Invalid Task Status");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Get the task object by the ID
+            Task task = taskService.getTaskById(taskId);
+            task.setStatus(status);
+
+            // Save the task
+            Task savedTask = taskService.saveTask(task);
+            commonResponseDTO.setData(savedTask);
+            commonResponseDTO.setMessage("Task status updated successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Task status update failed");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
     }
-
-    @PutMapping("/{taskId}")
-    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
-                                                       @PathVariable int taskID,
-                                                       @RequestBody TaskCreateDTO taskDTO
-    ) {
-        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
-        User user = (User) request.getAttribute("user");
-        // priority and type validation
-        // using task id you can get the task object
-        // set all task attributes from taskDTO
-        // save task using savetask function
-    }
-
-
 }
