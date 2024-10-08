@@ -135,4 +135,31 @@ public class TaskController {
     }
 
 
+    @PutMapping("/status/{taskId}")
+    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
+                                                        @PathVariable int taskID,
+                                                       @RequestParam(required = false) String status
+    ) {
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        // TODO,PROGRESS,COMPLETE validate
+      // get the task object by th id
+        // set the task status in to parameter status
+        // save task using savetask function
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
+                                                       @PathVariable int taskID,
+                                                       @RequestBody TaskCreateDTO taskDTO
+    ) {
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        // priority and type validation
+        // using task id you can get the task object
+        // set all task attributes from taskDTO
+        // save task using savetask function
+    }
+
+
 }
