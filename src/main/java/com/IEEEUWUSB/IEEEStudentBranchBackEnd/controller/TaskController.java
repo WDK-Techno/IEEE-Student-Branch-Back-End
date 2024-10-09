@@ -152,4 +152,59 @@ public class TaskController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
+                                                       @PathVariable int taskID,
+                                                       @RequestBody TaskCreateDTO taskDTO) {
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
+
+        // Retrieve the user from the request
+        User user = (User) request.getAttribute("user");
+
+        // Priority and type validation
+        boolean priorityValidation = taskDTO.getPriority().equals("HIGH") ||
+                taskDTO.getPriority().equals("MEDIUM") ||
+                taskDTO.getPriority().equals("LOW");
+
+        boolean typeValidation = taskDTO.getType().equals("TODO") ||
+                taskDTO.getType().equals("PROGRESS") ||
+                taskDTO.getType().equals("COMPLETE");
+
+        if (!priorityValidation || !typeValidation) {
+            commonResponseDTO.setMessage("Invalid task priority or type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Retrieve the task by ID
+            Task task = taskService.findTaskById(taskID);
+
+            if (task == null) {
+                commonResponseDTO.setMessage("Task not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            // Update the task attributes
+            task.setTask_name(taskDTO.getTask_name());
+            task.setPriority(taskDTO.getPriority());
+            task.setType(taskDTO.getType());
+            task.setStart_date(taskDTO.getStart_date());
+            task.setEnd_date(taskDTO.getEnd_date());
+            task.setStatus(taskDTO.getStatus());
+
+            // Save the updated task
+            Task updatedTask = taskService.saveTask(task);
+
+            commonResponseDTO.setData(updatedTask);
+            commonResponseDTO.setMessage("Task updated successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to update task");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
