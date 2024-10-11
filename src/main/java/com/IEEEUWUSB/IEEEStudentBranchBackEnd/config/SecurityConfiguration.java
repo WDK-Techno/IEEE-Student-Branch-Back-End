@@ -155,7 +155,6 @@ public class SecurityConfiguration {
                         .contactNo("0755701765")
                         .createdDate(LocalDateTime.now())
                         .status("VERIFIED")
-                        .academicYear(savedAcedemicYear)
                         .build();
 
                 var savedUser = userService.saveUser(newAdmin);
@@ -171,7 +170,7 @@ public class SecurityConfiguration {
                 //test users
                 for (char c = 'a'; c <= 'z'; c++) {
 
-                    users.add(User.builder().email(c + "@gmail.com").academicYear(savedAcedemicYear).password(passwordEncoder.encode("123")).firstName(c + "Mohamed").lastName(c + "Aasath").contactNo("0755701765").createdDate(LocalDateTime.now()).status("VERIFIED").build());
+                    users.add(User.builder().email(c + "@gmail.com").password(passwordEncoder.encode("123")).firstName(c + "Mohamed").lastName(c + "Aasath").contactNo("0755701765").createdDate(LocalDateTime.now()).status("VERIFIED").build());
 
                 }
 

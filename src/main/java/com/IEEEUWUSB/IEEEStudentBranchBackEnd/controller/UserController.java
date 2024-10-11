@@ -124,6 +124,47 @@ public class UserController {
 //        }
 //
 //    }
+@PutMapping("/updateUser")
+public ResponseEntity<CommonResponseDTO> updateUser(@RequestBody UserDTO userDTO, HttpServletRequest request) {
+    CommonResponseDTO<User> commonResponseDTO = new CommonResponseDTO<>();
+    try {
+
+        User user = (User) request.getAttribute("user");
+        if (user == null) {
+            commonResponseDTO.setMessage("User not found");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+        }
+
+        // Update the user attributes
+        user.setEmail(userDTO.getEmail());
+        user.setIeee_email(userDTO.getIeee_email());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setIeee_membership_number(userDTO.getIeee_membership_number());
+        user.setNameWithInitial(userDTO.getNameWithInitial());
+        user.setContactNo(userDTO.getContactNo());
+        user.setBio(userDTO.getBio());
+        user.setProfilePic(userDTO.getProfilePic());
+        user.setFbURL(userDTO.getFbURL());
+        user.setLinkedInURL(userDTO.getLinkedInURL());
+
+        // Save the updated user
+        User updatedUser = userService.saveUser(user);
+        if (updatedUser == null) {
+            commonResponseDTO.setMessage("Failed to update user");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        commonResponseDTO.setData(updatedUser);
+        commonResponseDTO.setMessage("User updated successfully");
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+    } catch (Exception e) {
+        commonResponseDTO.setMessage("Failed to update user");
+        commonResponseDTO.setError(e.getMessage());
+        return new ResponseEntity<>(commonResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
 
 //    @GetMapping(value = "/getAllUser")
 //    public ResponseEntity getAllUser() {

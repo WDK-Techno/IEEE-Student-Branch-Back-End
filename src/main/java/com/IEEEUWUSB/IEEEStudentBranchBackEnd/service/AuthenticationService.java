@@ -48,7 +48,6 @@ public class AuthenticationService {
                 .contactNo(request.getContactNo())
                 .createdDate(LocalDateTime.now())
                 .status("NOT_VERIFIED")
-                .academicYear(academicYear)
                 .build();
 
         var memberRole = roleServices.getRoleByName("Member");
