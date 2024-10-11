@@ -63,14 +63,6 @@ public class UserService {
     }
 
 
-    public String updateUser(UserDTO userDTO) {
-        if (userRepo.existsById(userDTO.getUserID())) {
-            userRepo.save(modelMapper.map(userDTO, User.class));
-            return VarList.RSP_SUCCESS;
-        } else {
-            return VarList.RSP_NO_DATA_FOUND;
-        }
-    }
 
     public List<UserDTO> getAllUser() {
         List<User> userList = userRepo.findAll();
@@ -121,14 +113,10 @@ public class UserService {
        return userRepo.save(user);
     }
 
-    public Page<UserDTO> getAllusers(Integer page, String search) {
+    public Page<User> getAllusers(Integer page, String search) {
         Pageable pageable = PageRequest.of(page, 15);
         Page<User> userPage = userRepo.finduser(search, pageable);
-        List<UserDTO> userDTOs = userPage.getContent().stream()
-                .map(UserDTO::convertToDTO)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(userDTOs, pageable, userPage.getTotalElements());
+        return userPage;
     }
 
 }

@@ -69,6 +69,9 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String insterURL;
 
+    @Column(columnDefinition = "TEXT")
+    private String location;
+
     @ManyToOne
     private AcademicYear  academicYear ;
 

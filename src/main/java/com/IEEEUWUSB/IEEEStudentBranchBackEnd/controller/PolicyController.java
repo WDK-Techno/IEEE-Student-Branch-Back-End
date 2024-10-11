@@ -33,6 +33,7 @@ public class PolicyController {
     public ResponseEntity<CommonResponseDTO> addPolicy(HttpServletRequest request, @RequestBody Policy policy) {
         CommonResponseDTO<Policy> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
+
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {

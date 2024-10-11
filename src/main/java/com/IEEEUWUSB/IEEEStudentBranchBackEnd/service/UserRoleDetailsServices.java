@@ -49,9 +49,9 @@ public class UserRoleDetailsServices {
 
 
 
-    public Page<UserRoleDetails> getAllExcomUserDetails(Integer page, String search, Integer ouid,Integer AcedemicYearId){
+    public Page<UserRoleDetails> getAllExcomUserDetails(Integer page, String search, Integer ouid,Integer termyearId){
         Pageable pageable = PageRequest.of(page, 15);
-        return userRoleDetailsRepo.findAllExcomList(search, ouid,AcedemicYearId, pageable);
+        return userRoleDetailsRepo.findAllExcomList(search, ouid,termyearId, pageable);
     }
 
 
