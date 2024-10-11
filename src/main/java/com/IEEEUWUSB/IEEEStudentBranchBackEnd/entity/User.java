@@ -69,8 +69,8 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String insterURL;
 
-    @ManyToOne
-    private AcademicYear  academicYear ;
+    @Column(columnDefinition = "TEXT")
+    private String location;
 
 
 
@@ -108,4 +108,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
