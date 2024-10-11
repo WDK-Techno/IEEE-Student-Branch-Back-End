@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Table(name = "project")
 public class Project {
     @Id
@@ -35,8 +37,31 @@ public class Project {
 
     private String status;
 
-    @OneToMany
-    private Set<OU> uos = new HashSet<>();
+    @ManyToOne
+    private TermYear termyear;
+
+    @ManyToMany
+    private Set<OU> ou = new HashSet<>();
+
+
+    @ManyToOne
+    private User createdBy;
+
+    @ManyToMany
+    @JoinTable(
+            name = "priject_user",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users;
+
+    public void adduser(User user) {
+        users.add(user);
+    }
+
+    public void removeuser(User user) {
+        users.remove(user);
+    }
 
 
 

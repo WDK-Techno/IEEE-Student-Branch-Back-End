@@ -222,9 +222,9 @@ public class UserController {
     public ResponseEntity<CommonResponseDTO> getAllUsers(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page) {
-        CommonResponseDTO<Page<UserDTO>> commonResponseDTO = new CommonResponseDTO<>();
+        CommonResponseDTO<Page<User>> commonResponseDTO = new CommonResponseDTO<>();
         try {
-            Page<UserDTO> data = userService.getAllusers(page, search);
+            Page<User> data = userService.getAllusers(page, search);
             commonResponseDTO.setData(data);
             commonResponseDTO.setMessage("Successfully retrieved Policies");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
@@ -233,6 +233,41 @@ public class UserController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    @PutMapping("/updateUser")
+    public ResponseEntity<CommonResponseDTO> updateUser(@RequestBody UserDTO userDTO, HttpServletRequest request) {
+        CommonResponseDTO<User> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+
+            User user = (User) request.getAttribute("user");
+            if (user == null) {
+                commonResponseDTO.setMessage("User not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            user.setEmail(userDTO.getEmail());
+            user.setIeee_email(userDTO.getIeee_email());
+            user.setFirstName(userDTO.getFirstName());
+            user.setLastName(userDTO.getLastName());
+            user.setIeee_membership_number(userDTO.getIeee_membership_number());
+            user.setNameWithInitial(userDTO.getNameWithInitial());
+            user.setContactNo(userDTO.getContactNo());
+            user.setBio(userDTO.getBio());
+            user.setProfilePic(userDTO.getProfilePic());
+            user.setFbURL(userDTO.getFbURL());
+            user.setLinkedInURL(userDTO.getLinkedInURL());
+            user.setLocation(userDTO.getLocation());
+
+            User updatedUser = userService.saveUser(user);
+            commonResponseDTO.setData(updatedUser);
+            commonResponseDTO.setMessage("User updated successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to update user");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

@@ -25,17 +25,4 @@ public class UserRoleDetailsDTO {
     private OU ou;
     private Project project;
 
-    public static UserRoleDetailsDTO convertToUserRoleDTO(UserRoleDetails userRoleDetails) {
-        return UserRoleDetailsDTO.builder()
-                .userRoleDetailsId(userRoleDetails.getUserRoleDetailsId())
-                .start_date(userRoleDetails.getStart_date())
-                .end_date(userRoleDetails.getEnd_date())
-                .isActive(userRoleDetails.getIsActive())
-                .type(userRoleDetails.getType())
-                .role(userRoleDetails.getRole())
-                .user(UserDTO.convertToDTO(userRoleDetails.getUser()))
-                .ou(userRoleDetails.getOu())
-                .project(userRoleDetails.getProject())
-                .build();
-    }
 }
