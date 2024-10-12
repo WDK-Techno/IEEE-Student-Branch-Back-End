@@ -41,19 +41,16 @@ public class Project {
     private TermYear termyear;
 
     @ManyToMany
-    private Set<OU> ou = new HashSet<>();
+    @Builder.Default
+    private Set<OU> ous = new HashSet<>();
 
 
     @ManyToOne
     private User createdBy;
 
     @ManyToMany
-    @JoinTable(
-            name = "priject_user",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> users;
+    @Builder.Default
+    private Set<User> users = new HashSet<>();
 
     public void adduser(User user) {
         users.add(user);
@@ -64,11 +61,11 @@ public class Project {
     }
 
     public void addOU(OU ou) {
-        this.ou.add(ou);
+        ous.add(ou);
     }
 
     public void removeOU(OU ou) {
-        this.ou.remove(ou);
+        ous.remove(ou);
     }
 
 

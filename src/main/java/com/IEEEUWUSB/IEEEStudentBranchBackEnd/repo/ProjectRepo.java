@@ -5,6 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectRepo extends JpaRepository<Project, Integer> {
-    Page<Project> findByProjectNameAndStatusAndOuAndTermyear(String projectName, String status, OU ou, TermYear termYear, Pageable pageable);
+    Page<Project> findByProjectNameAndStatusAndOusAndTermyear(String projectName, String status, OU ou, TermYear termYear, Pageable pageable);
 }
 

@@ -35,7 +35,7 @@ public class ProjectService {
 
     public Page<Project> getAllProject(Integer page, String name, String status, OU ou, TermYear termYear) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameAndStatusAndOuAndTermyear(name, status, ou,termYear,pageable);
+        return projectRepository.findByProjectNameAndStatusAndOusAndTermyear(name, status, ou,termYear,pageable);
     }
 
 }
