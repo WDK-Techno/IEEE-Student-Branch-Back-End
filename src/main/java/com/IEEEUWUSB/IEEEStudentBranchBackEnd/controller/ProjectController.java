@@ -5,10 +5,7 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ProjectService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TermYearService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -33,13 +31,20 @@ public class ProjectController {
     private ProjectService projectService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     public final OUService ouService;
+
+    @Autowired
+    private final RoleServices roleServices;
 
     @Autowired
     private TermYearService termYearService;
 
-    public ProjectController(OUService ouService) {
+    public ProjectController(OUService ouService, RoleServices roleServices) {
         this.ouService = ouService;
+        this.roleServices = roleServices;
     }
 
     @PostMapping
@@ -74,9 +79,9 @@ public class ProjectController {
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
             } catch (Exception e) {
 
-                    commonResponseDTO.setMessage("failed to add Project");
-                    commonResponseDTO.setError(e.getMessage());
-                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                commonResponseDTO.setMessage("failed to add Project");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
 
             }
         } else {
@@ -89,7 +94,7 @@ public class ProjectController {
 
 
     @PutMapping("/{project_id}")
-    public ResponseEntity<CommonResponseDTO> editProject(HttpServletRequest request, @RequestBody ProjectDTO projectDTO,@PathVariable int project_id) {
+    public ResponseEntity<CommonResponseDTO> editProject(HttpServletRequest request, @RequestBody ProjectDTO projectDTO, @PathVariable int project_id) {
         CommonResponseDTO<Project> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
@@ -99,7 +104,7 @@ public class ProjectController {
             try {
                 Project project = projectService.getProjectById(project_id);
 
-                if(project == null){
+                if (project == null) {
                     commonResponseDTO.setMessage("Project not found");
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
                 }
@@ -183,9 +188,9 @@ public class ProjectController {
 
     @GetMapping("/count")
     public ResponseEntity<CommonResponseDTO> getProjectCount(HttpServletRequest request,
-                                                        @RequestParam(required = false) Integer ouid,
-                                                        @RequestParam(required = false) Integer termYearId,
-                                                        @RequestParam(required = false) String search) {
+                                                             @RequestParam(required = false) Integer ouid,
+                                                             @RequestParam(required = false) Integer termYearId,
+                                                             @RequestParam(required = false) String search) {
         CommonResponseDTO<StatusCountDTO> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
@@ -232,7 +237,7 @@ public class ProjectController {
             try {
 
                 Project project = projectService.getProjectById(project_id);
-                if(project == null){
+                if (project == null) {
                     commonResponseDTO.setMessage("Project not found");
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
                 }
@@ -249,6 +254,95 @@ public class ProjectController {
             }
         } else {
             commonResponseDTO.setMessage("No Authority to Add Project");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
+    @PostMapping(value = "/{roleID}/assign/{userId}/{projectId}")
+    public ResponseEntity<CommonResponseDTO> assignRole(HttpServletRequest request, @PathVariable int roleID, @PathVariable int userId, @PathVariable int projectId) {
+        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        List<UserRoleDetails> userRoleDetailsProject = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", projectId);
+        boolean isExcomAssignAvailablemMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "PROJECT");
+        boolean isExcomAssignAvailableProject = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsProject, "PROJECT_ASSIGN");
+        if (isExcomAssignAvailableProject || isExcomAssignAvailablemMain) {
+            try {
+                Project project = projectService.getProjectById(projectId);
+                TermYear activeTermYear = termYearService.findByActiveStatus();
+                User subuser = userService.getUserId(userId);
+                Role role = roleServices.getRoleById(roleID);
+
+                if (project == null) {
+                    commonResponseDTO.setMessage("Project not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                if (subuser == null) {
+                    commonResponseDTO.setMessage("User not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                if (role == null) {
+                    commonResponseDTO.setMessage("Role not found");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                if (activeTermYear == null) {
+                    commonResponseDTO.setMessage("There is no active term year");
+                    commonResponseDTO.setError(null);
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                UserRoleDetails subuserRoleDetailsProject = userRoleDetailsServices.getuserRoleDetailsByProjectSingleObject(subuser, true, "PROJECT", projectId);
+                List<UserRoleDetails> otherUserRoleDetailsInsameProject = userRoleDetailsServices.getuserroledetailsbyroleandproject(role,true, project);
+                if (subuserRoleDetailsProject != null) {
+                    if (role == subuserRoleDetailsProject.getRole()) {
+                        commonResponseDTO.setMessage("Already Assigned Role");
+                        commonResponseDTO.setError(null);
+                        return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                    }
+                    subuserRoleDetailsProject.setEnd_date(LocalDateTime.now());
+                    subuserRoleDetailsProject.setIsActive(false);
+                    project.removeuser(subuser);
+                    projectService.saveProject(project);
+                    userRoleDetailsServices.createUserRoleDetails(subuserRoleDetailsProject);
+                }
+
+                if (otherUserRoleDetailsInsameProject != null && !otherUserRoleDetailsInsameProject.isEmpty()) {
+                    otherUserRoleDetailsInsameProject.forEach(userRoleDetails -> {
+                        project.removeuser(userRoleDetails.getUser());
+                        userRoleDetails.setIsActive(false);
+                        userRoleDetails.setEnd_date(LocalDateTime.now());
+                        userRoleDetailsServices.createUserRoleDetails(userRoleDetails);
+                    });
+                }
+
+                var NewuserRoleDetails = UserRoleDetails.builder()
+                        .user(subuser)
+                        .role(role)
+                        .isActive(true)
+                        .type(role.getType())
+                        .termyear(activeTermYear)
+                        .project(project)
+                        .start_date(LocalDateTime.now()).build();
+                project.adduser(subuser);
+                projectService.saveProject(project);
+                userRoleDetailsServices.createUserRoleDetails(NewuserRoleDetails);
+                commonResponseDTO.setMessage("Successfully Assign Role");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("Failed to Assign Role");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            commonResponseDTO.setMessage("No Authority to Assign Role");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
     }
