@@ -63,6 +63,15 @@ public class Project {
         users.remove(user);
     }
 
+    public void addOU(OU ou) {
+        this.ou.add(ou);
+    }
+
+    public void removeOU(OU ou) {
+        this.ou.remove(ou);
+    }
+
+
 
 
 
