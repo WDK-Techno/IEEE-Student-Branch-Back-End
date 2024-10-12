@@ -35,7 +35,12 @@ public class ProjectService {
 
     public Page<Project> getAllProject(Integer page, String name, String status, OU ou, TermYear termYear) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameAndStatusAndOusAndTermyear(name, status, ou,termYear,pageable);
+        return projectRepository.findByProjectNameOrStatusOrOusContainingOrTermyear(name, status, ou,termYear,pageable);
+    }
+
+    public Page<Project> getAllProjectByuser(Integer page, String name, String status, OU ou, TermYear termYear,User user) {
+        Pageable pageable = PageRequest.of(page, 15);
+        return projectRepository.findByProjectNameOrStatusOrOusContainingOrTermyearOrUsersContainingOrCreatedBy(name, status, ou,termYear,user,user,pageable);
     }
 
 }

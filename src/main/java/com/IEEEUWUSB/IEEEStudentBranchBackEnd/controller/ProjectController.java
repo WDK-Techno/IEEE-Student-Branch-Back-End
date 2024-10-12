@@ -10,6 +10,7 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TermYearService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,6 +81,110 @@ public class ProjectController {
         } else {
             commonResponseDTO.setMessage("No Authority to Add Project");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+
+
+    @PutMapping("/{project_id}")
+    public ResponseEntity<CommonResponseDTO> editProject(HttpServletRequest request, @RequestBody ProjectDTO projectDTO,@PathVariable int project_id) {
+        CommonResponseDTO<Project> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isProjectolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+        boolean statusValidation = projectDTO.getStatus().equals("TODO") || projectDTO.getStatus().equals("PROGRESS") || projectDTO.getStatus().equals("COMPLETE");
+        if (isProjectolicyAvailable && statusValidation) {
+            try {
+                Project project = projectService.getProjectById(project_id);
+
+                if(project == null){
+                    commonResponseDTO.setMessage("Project not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                Set<OU> existingOus = new HashSet<>(project.getOus());
+
+                Set<Integer> ProjectIdSet = new HashSet<>(Arrays.asList(projectDTO.getOu_id()));
+
+                for (OU Ou : existingOus) {
+                    if (!ProjectIdSet.contains(Ou.getOuID())) {
+                        project.removeOU(Ou);
+                    }
+                }
+
+                for (Integer OuId : projectDTO.getOu_id()) {
+                    OU ou = ouService.getOUById(OuId);
+                    if (ou != null && !project.getOus().contains(ou)) {
+                        project.addOU(ou);
+                    }
+                }
+
+                project.setProjectLogo(projectDTO.getProject_logo());
+                project.setProjectName(projectDTO.getProject_name());
+                project.setDescription(projectDTO.getDescription());
+                project.setEndDate(projectDTO.getEnd_date());
+                project.setStartDate(projectDTO.getStart_date());
+                project.setStatus(projectDTO.getStatus());
+
+
+                Project SavedProject = projectService.saveProject(project);
+                commonResponseDTO.setData(SavedProject);
+                commonResponseDTO.setMessage("Successfully edit Project");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+            } catch (Exception e) {
+
+                commonResponseDTO.setMessage("failed to edit Project");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            commonResponseDTO.setMessage(!isProjectolicyAvailable ? "No Authority to Add Project" : "Invalid status type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+    }
+
+    @GetMapping
+    public ResponseEntity<CommonResponseDTO> GetProject(HttpServletRequest request,
+                                                        @RequestParam(required = false) Integer ouid,
+                                                        @RequestParam(required = false) Integer termYearId,
+                                                        @RequestParam(required = false) String search,
+                                                        @RequestParam(required = false) String status,
+                                                        @RequestParam(defaultValue = "0",required = false) Integer page) {
+        CommonResponseDTO<Page<Project>> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isProjectolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+        if (isProjectolicyAvailable) {
+            try {
+                OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
+                TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : null;
+                Page<Project> data = projectService.getAllProject(page,search, status, ou, termyear);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Project Retrieved1");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("failed to get Project");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            try {
+                OU ou = ouService.getOUById(ouid);
+                TermYear termyear = termYearService.findByid(termYearId);
+                Page<Project> data = projectService.getAllProjectByuser(page,search, status, ou, termyear,user);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Project Retrieved2");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("failed to get Project");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
         }
 
 
