@@ -147,46 +147,70 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<CommonResponseDTO> GetProject(HttpServletRequest request,
+    public ResponseEntity<CommonResponseDTO> getProject(HttpServletRequest request,
                                                         @RequestParam(required = false) Integer ouid,
                                                         @RequestParam(required = false) Integer termYearId,
                                                         @RequestParam(required = false) String search,
                                                         @RequestParam(required = false) String status,
-                                                        @RequestParam(defaultValue = "0",required = false) Integer page) {
+                                                        @RequestParam(required = false, defaultValue = "0") Integer page) {
         CommonResponseDTO<Page<Project>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isProjectolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
-        if (isProjectolicyAvailable) {
+        boolean isProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+
+        try {
+            OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
+            TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : null;
+
+            Page<Project> data;
+            if (isProjectPolicyAvailable) {
+                data = projectService.getAllProject(page, search, status, ou, termyear);
+            } else {
+                data = projectService.getAllProjectByuser(page, search, status, ou, termyear, user);
+            }
+
+            commonResponseDTO.setData(data);
+            commonResponseDTO.setMessage("Successfully Project Retrieved");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get Project");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @DeleteMapping("/{project_id}")
+    public ResponseEntity<CommonResponseDTO> deleteProject(HttpServletRequest request,
+                                                           @PathVariable int project_id) {
+        CommonResponseDTO<String> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+
+        if (isProjectPolicyAvailable) {
             try {
-                OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
-                TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : null;
-                Page<Project> data = projectService.getAllProject(page,search, status, ou, termyear);
-                commonResponseDTO.setData(data);
-                commonResponseDTO.setMessage("Successfully Project Retrieved1");
+
+                Project project = projectService.getProjectById(project_id);
+                if(project == null){
+                    commonResponseDTO.setMessage("Project not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+                projectService.deleteProject(project);
+                commonResponseDTO.setData(null);
+                commonResponseDTO.setMessage("Successfully deleted Project");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
             } catch (Exception e) {
-                commonResponseDTO.setMessage("failed to get Project");
+
+                commonResponseDTO.setMessage("failed to add Project");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
 
             }
         } else {
-            try {
-                OU ou = ouService.getOUById(ouid);
-                TermYear termyear = termYearService.findByid(termYearId);
-                Page<Project> data = projectService.getAllProjectByuser(page,search, status, ou, termyear,user);
-                commonResponseDTO.setData(data);
-                commonResponseDTO.setMessage("Successfully Project Retrieved2");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
-            } catch (Exception e) {
-                commonResponseDTO.setMessage("failed to get Project");
-                commonResponseDTO.setError(e.getMessage());
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-
-            }
+            commonResponseDTO.setMessage("No Authority to Add Project");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
-
-
     }
+
 }

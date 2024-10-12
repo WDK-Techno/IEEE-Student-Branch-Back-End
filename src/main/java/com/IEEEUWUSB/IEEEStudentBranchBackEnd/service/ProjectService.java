@@ -29,7 +29,7 @@ public class ProjectService {
         return optionalRole.orElse(null);
     }
 
-    public void DeleteProject(Project project){
+    public void deleteProject(Project project){
         projectRepository.delete(project);
     }
 
