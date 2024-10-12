@@ -3,6 +3,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ProjectService;
@@ -174,6 +175,45 @@ public class ProjectController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
             commonResponseDTO.setMessage("Failed to get Project");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping("/count")
+    public ResponseEntity<CommonResponseDTO> getProjectCount(HttpServletRequest request,
+                                                        @RequestParam(required = false) Integer ouid,
+                                                        @RequestParam(required = false) Integer termYearId,
+                                                        @RequestParam(required = false) String search) {
+        CommonResponseDTO<StatusCountDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+
+        try {
+            OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
+            TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : null;
+
+            StatusCountDTO data;
+            if (isProjectPolicyAvailable) {
+                long todo = projectService.countProjectsByCriteria(search, "TODO", ou, termyear);
+                long progress = projectService.countProjectsByCriteria(search, "PROGRESS", ou, termyear);
+                long complete = projectService.countProjectsByCriteria(search, "COMPLETE", ou, termyear);
+                data = new StatusCountDTO(todo, progress, complete);
+
+            } else {
+                long todo = projectService.countProjectsByUser(search, "TODO", user, user);
+                long progress = projectService.countProjectsByUser(search, "PROGRESS", user, user);
+                long complete = projectService.countProjectsByUser(search, "COMPLETE", user, user);
+                data = new StatusCountDTO(todo, progress, complete);
+            }
+
+            commonResponseDTO.setData(data);
+            commonResponseDTO.setMessage("Successfully Project counts Retrieved");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get Project counts");
             commonResponseDTO.setError(e.getMessage());
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }

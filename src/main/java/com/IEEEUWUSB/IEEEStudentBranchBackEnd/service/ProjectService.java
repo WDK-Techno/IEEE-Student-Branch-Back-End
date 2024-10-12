@@ -43,4 +43,22 @@ public class ProjectService {
         return projectRepository.findByProjectNameOrStatusOrUsersContainingOrCreatedBy(name, status,user,user,pageable);
     }
 
+    public long countProjectsByCriteria(String projectName, String status, OU ou, TermYear termYear) {
+        if (ou == null && termYear == null) {
+            // Count only by status
+            return projectRepository.countByStatus(status);
+        } else if (ou == null) {
+            // Count by status and term year only
+            return projectRepository.countByStatusAndTermyear(status, termYear);
+        } else if (termYear == null) {
+            // Count by status and OU only
+            return projectRepository.countByStatusAndOusContaining(status, ou);
+        }
+        return projectRepository.countByStatusAndOusContainingAndTermyear(status, ou, termYear);
+    }
+
+    public long countProjectsByUser(String projectName, String status, User user, User createdBy) {
+        return projectRepository.countByStatusAndUsersOrCreatedBy(status, user, createdBy);
+    }
+
 }
