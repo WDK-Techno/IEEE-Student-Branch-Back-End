@@ -166,7 +166,7 @@ public class ProjectController {
             if (isProjectPolicyAvailable) {
                 data = projectService.getAllProject(page, search, status, ou, termyear);
             } else {
-                data = projectService.getAllProjectByuser(page, search, status, ou, termyear, user);
+                data = projectService.getAllProjectByuser(page, search, status, user);
             }
 
             commonResponseDTO.setData(data);

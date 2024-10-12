@@ -38,9 +38,9 @@ public class ProjectService {
         return projectRepository.findByProjectNameOrStatusOrOusContainingOrTermyear(name, status, ou,termYear,pageable);
     }
 
-    public Page<Project> getAllProjectByuser(Integer page, String name, String status, OU ou, TermYear termYear,User user) {
+    public Page<Project> getAllProjectByuser(Integer page, String name, String status, User user) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameOrStatusOrOusContainingOrTermyearOrUsersContainingOrCreatedBy(name, status, ou,termYear,user,user,pageable);
+        return projectRepository.findByProjectNameOrStatusOrUsersContainingOrCreatedBy(name, status,user,user,pageable);
     }
 
 }
