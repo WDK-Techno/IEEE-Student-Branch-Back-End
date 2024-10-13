@@ -39,7 +39,7 @@ public class TermYearController {
             try {
                 TermYear newTermYear = termYearService.saveTermYear(termyear);
                 commonResponseDTO.setData(newTermYear);
-                commonResponseDTO.setMessage("Successfully added Policy");
+                commonResponseDTO.setMessage("Successfully added TermYear");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
             } catch (Exception e) {
 
@@ -62,8 +62,8 @@ public class TermYearController {
             try {
                 List<TermYear> TermYears = termYearService.getAllTermYear();
                 commonResponseDTO.setData(TermYears);
-                commonResponseDTO.setMessage("Successfully added Policy");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+                commonResponseDTO.setMessage("Successfully term year retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
                 commonResponseDTO.setMessage("failed to Retrieve TermYear");
                 commonResponseDTO.setError(e.getMessage());
@@ -93,7 +93,7 @@ public class TermYearController {
                 TermYear newTermYear = termYearService.saveTermYear(termyear);
                 commonResponseDTO.setData(newTermYear);
                 commonResponseDTO.setMessage("Successfully added Policy");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
                 commonResponseDTO.setMessage("failed to Edit TermYear");
                 commonResponseDTO.setError(e.getMessage());
