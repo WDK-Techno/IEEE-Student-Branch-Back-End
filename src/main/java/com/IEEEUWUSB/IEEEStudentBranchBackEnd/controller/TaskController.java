@@ -3,11 +3,9 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AssignTaskDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.TaskCreateDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Task;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ProjectService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +25,9 @@ public class TaskController {
     private final TaksService taskService;
 
     @Autowired
+    private ProjectService projectService;
+
+    @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
 
     @Autowired
@@ -41,35 +42,44 @@ public class TaskController {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("MEDIUM") || task.getPriority().equals("LOW");
         boolean typeValidation = task.getType().equals("EXCOM") || task.getType().equals("PROJECT");
-
+        User user = (User) request.getAttribute("user");
         if (typeValidation && priorityValidation) {
-            User user = (User) request.getAttribute("user");
-            List<UserRoleDetails> userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-            boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
+            try {
+                boolean isPolicyAvailable = false;
+                Project project;
+                OU ou;
+                Task newTask = Task.builder()
+                        .start_date(task.getStart_date())
+                        .end_date(task.getEnd_date())
+                        .task_name(task.getTask_name())
+                        .type(task.getType())
+                        .status("TODO")
+                        .createdBy(user)
+                        .build();
+                if(task.getType().equals("EXCOM")){
+                    ou = ouService.getOUById(task.getOu_id());
+                    List<UserRoleDetails> userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+                    isPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
+                    newTask.setOu(ou);
+                }else if(task.getType().equals("PROJECT")){
+                    project = projectService.getProjectById(task.getProject_id());
+                    List<UserRoleDetails> userRoleDetailsProject = userRoleDetailsServices.getuserroledetailsbyuserandproject(user, true, project);
+                    isPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsProject, "PROJECT_TASK");
+                    newTask.setProject(project);
+                }
 
-            if (isTaskPolicyAvailable) {
-                try {
-                    Task newTask = Task.builder()
-                            .start_date(task.getStart_date())
-                            .end_date(task.getEnd_date())
-                            .ou(ouService.getOUById(task.getOu_id()))
-                            .task_name(task.getTask_name())
-                            .type(task.getType())
-                            .status("TODO")
-                            .createdBy(user)
-                            .build();
-
+                if (isPolicyAvailable) {
                     Task newTaskSaved = taskService.saveTask(newTask);
                     commonResponseDTO.setData(newTaskSaved);
                     commonResponseDTO.setMessage("Task Added Successfully");
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
-                } catch (Exception e) {
-                    commonResponseDTO.setMessage("Task Added Failed");
-                    commonResponseDTO.setError(e.getMessage());
+                } else {
+                    commonResponseDTO.setMessage("No Authority to Add Task");
                     return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
                 }
-            } else {
-                commonResponseDTO.setMessage("No Authority to Add Task");
+            } catch (Exception e) {
+                commonResponseDTO.setMessage("Task Added Failed");
+                commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
         } else {

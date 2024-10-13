@@ -45,6 +45,11 @@ public class UserRoleDetailsServices {
         return optionalRole.orElse(null);
     }
 
+    public List<UserRoleDetails> getAlluserRoleDetailsByProject(boolean isActive, String type, Integer projectID) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByIsActiveAndTypeAndProject_ProjectID(isActive,type,projectID);
+        return optionalRole.orElse(null);
+    }
+
     public UserRoleDetails getuserRoleDetailsByProjectSingleObject(User user, boolean isActive, String type, Integer projectID) {
         Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findUserRoleDetailsByUserAndIsActiveAndTypeAndProject_ProjectID(user,isActive,type,projectID);
         return optionalRole.orElse(null);

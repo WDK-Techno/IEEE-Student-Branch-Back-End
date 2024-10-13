@@ -3,6 +3,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectUserPermissionDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
@@ -14,10 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -223,6 +221,32 @@ public class ProjectController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @GetMapping("/{project_id}")
+    public ResponseEntity<CommonResponseDTO> getProjectbyId(HttpServletRequest request, @PathVariable int project_id) {
+        CommonResponseDTO<ProjectUserPermissionDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+
+        try {
+            Project project = projectService.getProjectById(project_id);
+            if (project == null) {
+                commonResponseDTO.setMessage("Project not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+            List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", project_id);
+            List<UserRoleDetails> OthersuserRoleDetails = userRoleDetailsServices.getAlluserRoleDetailsByProject(true, "PROJECT", project_id);
+            ProjectUserPermissionDTO data= new ProjectUserPermissionDTO(project,userRoleDetails,OthersuserRoleDetails);
+            commonResponseDTO.setData(data);
+            commonResponseDTO.setMessage("Project retrieved successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get Project counts");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 
     @DeleteMapping("/{project_id}")

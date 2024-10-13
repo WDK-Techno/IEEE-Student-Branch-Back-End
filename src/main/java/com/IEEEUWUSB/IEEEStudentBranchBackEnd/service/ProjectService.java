@@ -35,12 +35,12 @@ public class ProjectService {
 
     public Page<Project> getAllProject(Integer page, String name, String status, OU ou, TermYear termYear) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameOrStatusOrOusContainingOrTermyear(name, status, ou,termYear,pageable);
+        return projectRepository.findAllProjects(name, status, ou,termYear,pageable);
     }
 
     public Page<Project> getAllProjectByuser(Integer page, String name, String status, User user) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameOrStatusOrUsersContainingOrCreatedBy(name, status,user,user,pageable);
+        return projectRepository.findProjectsByUser(name, status,user,user,pageable);
     }
 
     public long countProjectsByCriteria(String projectName, String status, OU ou, TermYear termYear) {

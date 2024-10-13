@@ -28,6 +28,11 @@ public class CommentService {
         Optional<List<Comment>> optionalRole = commentRepo.findByTask(task);
         return optionalRole.orElse(null);
     }
+
+    public List<Comment> getCommentsByProject(int project_id) {
+        Optional<List<Comment>> optionalRole = commentRepo.findByProject_ProjectID(project_id);
+        return optionalRole.orElse(null);
+    }
     public Comment getCommentById(int commentID) {
         return commentRepo.findById(commentID).orElse(null);
     }

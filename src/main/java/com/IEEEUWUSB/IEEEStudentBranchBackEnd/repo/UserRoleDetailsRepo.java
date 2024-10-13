@@ -23,6 +23,8 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
 
     Optional<List<UserRoleDetails>> findByUserAndIsActiveAndTypeAndProject_ProjectID(User user, boolean isActive, String type, Integer projectID);
 
+    Optional<List<UserRoleDetails>> findByIsActiveAndTypeAndProject_ProjectID(boolean isActive, String type, Integer projectID);
+
     Optional<UserRoleDetails> findUserRoleDetailsByUserAndIsActiveAndTypeAndProject_ProjectID(User user, boolean isActive, String type, Integer projectID);
 
     Optional<List<UserRoleDetails>> findByUserAndIsActiveAndProject(User user, boolean isActive, Project project);
