@@ -57,7 +57,7 @@ public class ProjectService {
         return projectRepository.countByStatusAndOusContainingAndTermyear(status, ou, termYear);
     }
 
-    public long countProjectsByUser(String projectName, String status, User user, User createdBy) {
+    public long countProjectsByUser(String status, User user, User createdBy) {
         return projectRepository.countByStatusAndUsersOrCreatedBy(status, user, createdBy);
     }
 

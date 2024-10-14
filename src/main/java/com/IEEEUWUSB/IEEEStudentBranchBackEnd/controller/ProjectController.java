@@ -1,10 +1,7 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ProjectUserPermissionDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -206,9 +203,9 @@ public class ProjectController {
                 data = new StatusCountDTO(todo, progress, complete);
 
             } else {
-                long todo = projectService.countProjectsByUser(search, "TODO", user, user);
-                long progress = projectService.countProjectsByUser(search, "PROGRESS", user, user);
-                long complete = projectService.countProjectsByUser(search, "COMPLETE", user, user);
+                long todo = projectService.countProjectsByUser("TODO", user, user);
+                long progress = projectService.countProjectsByUser("PROGRESS", user, user);
+                long complete = projectService.countProjectsByUser( "COMPLETE", user, user);
                 data = new StatusCountDTO(todo, progress, complete);
             }
 
@@ -241,7 +238,7 @@ public class ProjectController {
             commonResponseDTO.setMessage("Project retrieved successfully");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
-            commonResponseDTO.setMessage("Failed to get Project counts");
+            commonResponseDTO.setMessage("Failed to get Project");
             commonResponseDTO.setError(e.getMessage());
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
@@ -268,7 +265,7 @@ public class ProjectController {
                 projectService.deleteProject(project);
                 commonResponseDTO.setData(null);
                 commonResponseDTO.setMessage("Successfully deleted Project");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
 
                 commonResponseDTO.setMessage("failed to add Project");
@@ -369,6 +366,41 @@ public class ProjectController {
             commonResponseDTO.setMessage("No Authority to Assign Role");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @PutMapping("duration/{project_id}")
+    public ResponseEntity<CommonResponseDTO> editProjectDuration(HttpServletRequest request, @RequestBody ProjectDurationDTO projectDurationDTO, @PathVariable int project_id) {
+        CommonResponseDTO<Project> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isProjectolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+        if (isProjectolicyAvailable) {
+            try {
+                Project project = projectService.getProjectById(project_id);
+
+                if (project == null) {
+                    commonResponseDTO.setMessage("Project not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
+                project.setEndDate(projectDurationDTO.getEnd_date());
+                project.setStartDate(projectDurationDTO.getStart_date());
+                Project SavedProject = projectService.saveProject(project);
+                commonResponseDTO.setData(SavedProject);
+                commonResponseDTO.setMessage("Successfully edit Project");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+
+                commonResponseDTO.setMessage("failed to edit Project");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            commonResponseDTO.setMessage(!isProjectolicyAvailable ? "No Authority to Add Project" : "Invalid status type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
     }
 
 }

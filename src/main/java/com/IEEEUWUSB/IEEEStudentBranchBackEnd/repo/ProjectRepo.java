@@ -18,10 +18,8 @@ public interface ProjectRepo extends JpaRepository<Project, Integer> {
     @Query("SELECT project FROM Project project " +
             "WHERE (:projectName IS NULL OR project.projectName LIKE CONCAT(:projectName, '%')) " +
             "AND (:status IS NULL OR project.status LIKE CONCAT(:status, '%')) " +
-            "AND (:ou IS NULL OR :ou MEMBER OF project.ous) " +
-            "AND (:user IS NULL OR :user MEMBER OF project.users) " +
-            "AND (:createdby IS NULL OR project.createdBy = :createdby) " +
-            "AND (:termYear IS NULL OR project.termyear = :termYear) " +
+            "AND ((:user IS NULL OR :user MEMBER OF project.users) " +
+            "OR (:createdby IS NULL OR project.createdBy = :createdby)) " +
             "ORDER BY project.projectID DESC")
     Page<Project> findProjectsByUser(String projectName, String status,User user,User createdby, Pageable pageable);
 
@@ -47,6 +45,8 @@ public interface ProjectRepo extends JpaRepository<Project, Integer> {
     );
 
     // For counting by user
+    @Query("SELECT COUNT(p) FROM Project p " +
+            "WHERE ( :user MEMBER OF p.users OR p.createdBy = :createdby ) AND p.status = :status")
     long countByStatusAndUsersOrCreatedBy(
             String status,
             User user,
