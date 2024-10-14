@@ -6,6 +6,7 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommentDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.CommentService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ProjectService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class CommentController {
 
     @Autowired
     private final CommentService commentService;
+
+    @Autowired
+    private ProjectService projectService;
 
     public CommentController(TaksService taksService, CommentService commentService) {
         this.taksService = taksService;
@@ -58,9 +62,31 @@ public class CommentController {
             }
 
 
+        }else if(commentDTO.getType().equals("PROJECT")){
+            Project project = projectService.getProjectById(commentDTO.getProject_id());
+            if(project == null){
+                commonResponseDTO.setMessage("Project not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+            Comment newcomment = Comment.builder()
+                    .comment(commentDTO.getComment())
+                    .user(user)
+                    .project(project)
+                    .created_at(LocalDateTime.now())
+                    .build();
+
+            try {
+                var savedComment = commentService.createComment(newcomment);
+                commonResponseDTO.setData(savedComment);
+                commonResponseDTO.setMessage("Comment added successfully");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                commonResponseDTO.setMessage(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
         }else{
-            commonResponseDTO.setMessage("");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            commonResponseDTO.setMessage("Invalid Comment type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
         }
     }
 
@@ -76,6 +102,27 @@ public class CommentController {
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } else {
                 commonResponseDTO.setMessage("No comments found for the specified task");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to retrieve comments");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/project/{project_id}")
+    public ResponseEntity<CommonResponseDTO<List<Comment>>> getCommentsByProject(
+            HttpServletRequest request, @PathVariable int project_id) {
+        CommonResponseDTO<List<Comment>> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+            List<Comment> comments = commentService.getCommentsByProject(project_id);
+            if (comments != null && !comments.isEmpty()) {
+                commonResponseDTO.setData(comments);
+                commonResponseDTO.setMessage("Comments retrieved successfully");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("No comments found for the specified Project");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {

@@ -21,6 +21,16 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
 
     Optional<List<UserRoleDetails>> findByUserAndIsActive(User user, boolean isActive);
 
+    Optional<List<UserRoleDetails>> findByUserAndIsActiveAndTypeAndProject_ProjectID(User user, boolean isActive, String type, Integer projectID);
+
+    Optional<List<UserRoleDetails>> findByIsActiveAndTypeAndProject_ProjectID(boolean isActive, String type, Integer projectID);
+
+    Optional<UserRoleDetails> findUserRoleDetailsByUserAndIsActiveAndTypeAndProject_ProjectID(User user, boolean isActive, String type, Integer projectID);
+
+    Optional<List<UserRoleDetails>> findByUserAndIsActiveAndProject(User user, boolean isActive, Project project);
+
+    Optional<List<UserRoleDetails>> findByRoleAndIsActiveAndProject(Role role, boolean isActive, Project project);
+
 
     @Query("SELECT urd FROM UserRoleDetails urd " +
             "WHERE (:termyearId IS NOT NULL OR urd.isActive = true) " +

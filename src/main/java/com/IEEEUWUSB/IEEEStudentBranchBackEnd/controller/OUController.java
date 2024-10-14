@@ -1,20 +1,19 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserRoleDetailsDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -48,7 +47,7 @@ public class OUController {
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
         } else {
-            commonResponseDTO.setMessage(isOtherPolicyAvailable+"No Authority to Add OU");
+            commonResponseDTO.setMessage(isOtherPolicyAvailable + "No Authority to Add OU");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
         }
 
@@ -100,7 +99,7 @@ public class OUController {
         } else {
             try {
 
-                List<OU> ouList =ouService.getAllOUsByUser(user);
+                List<OU> ouList = ouService.getAllOUsByUser(user);
                 commonResponseDTO.setData(ouList);
 
                 commonResponseDTO.setMessage("Successfully retrieved Ous sep");
@@ -115,10 +114,10 @@ public class OUController {
     }
 
     @GetMapping(value = "/getExcom")
-    public ResponseEntity<CommonResponseDTO<Page<UserRoleDetails>>> getExcom(HttpServletRequest request,  @RequestParam(required = false) String search,
-                                                                                @RequestParam(required = false) Integer ouid,
+    public ResponseEntity<CommonResponseDTO<Page<UserRoleDetails>>> getExcom(HttpServletRequest request, @RequestParam(required = false) String search,
+                                                                             @RequestParam(required = false) Integer ouid,
                                                                              @RequestParam(required = false) Integer termyearId,
-                                                                                @RequestParam(defaultValue = "0") int page) {
+                                                                             @RequestParam(defaultValue = "0") int page) {
         CommonResponseDTO<Page<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
@@ -126,7 +125,7 @@ public class OUController {
 
         if (isAllPolicyAvailable) {
             try {
-                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid,termyearId);
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid, termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
@@ -140,7 +139,7 @@ public class OUController {
             try {
                 UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 OU ou = (OU) userRoleDetailsExcom.getOu();
-                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(),termyearId);
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(), termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved respective Excom Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);

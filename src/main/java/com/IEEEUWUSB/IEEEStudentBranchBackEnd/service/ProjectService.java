@@ -29,13 +29,36 @@ public class ProjectService {
         return optionalRole.orElse(null);
     }
 
-    public void DeleteProject(Project project){
+    public void deleteProject(Project project){
         projectRepository.delete(project);
     }
 
     public Page<Project> getAllProject(Integer page, String name, String status, OU ou, TermYear termYear) {
         Pageable pageable = PageRequest.of(page, 15);
-        return projectRepository.findByProjectNameAndStatusAndOuAndTermyear(name, status, ou,termYear,pageable);
+        return projectRepository.findAllProjects(name, status, ou,termYear,pageable);
+    }
+
+    public Page<Project> getAllProjectByuser(Integer page, String name, String status, User user) {
+        Pageable pageable = PageRequest.of(page, 15);
+        return projectRepository.findProjectsByUser(name, status,user,user,pageable);
+    }
+
+    public long countProjectsByCriteria(String projectName, String status, OU ou, TermYear termYear) {
+        if (ou == null && termYear == null) {
+            // Count only by status
+            return projectRepository.countByStatus(status);
+        } else if (ou == null) {
+            // Count by status and term year only
+            return projectRepository.countByStatusAndTermyear(status, termYear);
+        } else if (termYear == null) {
+            // Count by status and OU only
+            return projectRepository.countByStatusAndOusContaining(status, ou);
+        }
+        return projectRepository.countByStatusAndOusContainingAndTermyear(status, ou, termYear);
+    }
+
+    public long countProjectsByUser(String status, User user, User createdBy) {
+        return projectRepository.countByStatusAndUsersOrCreatedBy(status, user, createdBy);
     }
 
 }

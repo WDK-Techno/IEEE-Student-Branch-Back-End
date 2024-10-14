@@ -29,4 +29,9 @@ public class TermYearService {
         Optional<TermYear> optionalRole = termYearRepo.findByStatus("ACTIVE");
         return optionalRole.orElse(null);
     }
+
+    public TermYear findByid(Integer id) {
+        Optional<TermYear> optionalRole = termYearRepo.findById(id);
+        return optionalRole.orElse(null);
+    }
 }

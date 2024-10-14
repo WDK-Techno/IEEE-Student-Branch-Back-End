@@ -11,16 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 @Builder
-public class TaskCreateDTO {
-    private String task_name;
-    private String status;
-    private String type;
+public class ProjectDurationDTO {
     private Date start_date;
+
     private Date end_date;
-    private Integer ou_id;
-    private Integer project_id;
-    private String priority;
-
-
-
 }

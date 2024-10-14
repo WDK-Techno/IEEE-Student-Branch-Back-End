@@ -10,4 +10,6 @@ public interface CommentRepo extends JpaRepository<Comment,Integer> {
 
     Optional<List<Comment>> findByTask(Task task);
 
+    Optional<List<Comment>> findByProject_ProjectID(Integer project_id);
+
 }

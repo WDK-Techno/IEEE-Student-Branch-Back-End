@@ -29,6 +29,32 @@ public class UserRoleDetailsServices {
         return optionalRole.orElse(null);
     }
 
+    public List<UserRoleDetails> getuserroledetailsbyuserandproject(User user, boolean isActive, Project project) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndProject(user,isActive,project);
+        return optionalRole.orElse(null);
+    }
+
+    public List<UserRoleDetails> getuserroledetailsbyroleandproject(Role role, boolean isActive, Project project) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByRoleAndIsActiveAndProject(role,isActive,project);
+        return optionalRole.orElse(null);
+    }
+
+
+    public List<UserRoleDetails> getuserRoleDetailsByProject(User user, boolean isActive, String type, Integer projectID) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeAndProject_ProjectID(user,isActive,type,projectID);
+        return optionalRole.orElse(null);
+    }
+
+    public List<UserRoleDetails> getAlluserRoleDetailsByProject(boolean isActive, String type, Integer projectID) {
+        Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByIsActiveAndTypeAndProject_ProjectID(isActive,type,projectID);
+        return optionalRole.orElse(null);
+    }
+
+    public UserRoleDetails getuserRoleDetailsByProjectSingleObject(User user, boolean isActive, String type, Integer projectID) {
+        Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findUserRoleDetailsByUserAndIsActiveAndTypeAndProject_ProjectID(user,isActive,type,projectID);
+        return optionalRole.orElse(null);
+    }
+
 
     public UserRoleDetails findByUserAndIsActiveAndType(User user,boolean isActive, String type) {
         Optional<UserRoleDetails> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndType(user,isActive,type);
@@ -39,6 +65,8 @@ public class UserRoleDetailsServices {
         Optional<List<UserRoleDetails>> optionalRole = userRoleDetailsRepo.findByUserAndIsActiveAndTypeExom(user,isActive,type,type2);
         return optionalRole.orElse(null);
     }
+
+
 
 
     public List<UserRoleDetails> getuserRoleDetailsExomByUserRole(Role role,boolean isActive, String type) {
