@@ -154,11 +154,15 @@ public class OUController {
 
         if (isAllPolicyAvailable) {
             try {
-                OU ou = ouService.getOUById(ouid);
-                if(ou == null){
-                    commonResponseDTO.setMessage("OU not found");
-                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                OU ou = null;
+                if(ouid!=null){
+                    ou = ouService.getOUById(ouid);
+                    if(ou == null){
+                        commonResponseDTO.setMessage("OU not found");
+                        return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                    }
                 }
+
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid, termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
