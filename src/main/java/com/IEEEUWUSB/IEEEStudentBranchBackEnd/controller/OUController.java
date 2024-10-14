@@ -113,6 +113,35 @@ public class OUController {
         }
     }
 
+    @GetMapping(value = "/{ouID}")
+    public ResponseEntity<CommonResponseDTO> getouByid(HttpServletRequest request, @PathVariable int ouID) {
+        CommonResponseDTO<OU> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isAllPOlicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM");
+
+        if (isAllPOlicyAvailable) {
+            try {
+                OU data = ouService.getOUById(ouID);
+                if (data == null){
+                    commonResponseDTO.setMessage("Failed to retrieve Ous");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                }
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully retrieved Ous");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+            } catch (Exception e) {
+                commonResponseDTO.setError(e.getMessage());
+                commonResponseDTO.setMessage("Failed to retrieve Ous");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            commonResponseDTO.setMessage("Failed to retrieve Ous");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping(value = "/getExcom")
     public ResponseEntity<CommonResponseDTO<Page<UserRoleDetails>>> getExcom(HttpServletRequest request, @RequestParam(required = false) String search,
                                                                              @RequestParam(required = false) Integer ouid,
@@ -125,6 +154,11 @@ public class OUController {
 
         if (isAllPolicyAvailable) {
             try {
+                OU ou = ouService.getOUById(ouid);
+                if(ou == null){
+                    commonResponseDTO.setMessage("OU not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                }
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid, termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");

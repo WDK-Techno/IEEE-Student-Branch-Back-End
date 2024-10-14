@@ -33,6 +33,7 @@ public class TaskController {
     @Autowired
     private OUService ouService;
 
+
     public TaskController(TaksService taskService) {
         this.taskService = taskService;
     }
@@ -53,6 +54,7 @@ public class TaskController {
                         .end_date(task.getEnd_date())
                         .task_name(task.getTask_name())
                         .type(task.getType())
+                        .priority(task.getPriority())
                         .status("TODO")
                         .createdBy(user)
                         .build();
@@ -110,6 +112,30 @@ public class TaskController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
+
+//    @GetMapping("project/{project_id}")
+//    public ResponseEntity<CommonResponseDTO> getTaskByProject(HttpServletRequest request, @PathVariable int project_id) {
+//        CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO<>();
+//        User user = (User) request.getAttribute("user");
+//        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+//        boolean isTaskPolicy = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK");
+//
+//        try {
+//            List<Task> tasks;
+//            if (isTaskPolicy) {
+//                tasks = taskService.findAllTasksByOU(ouService.getOUById(ouID));
+//            } else {
+//                tasks = taskService.findMyTasksByOU(user, ouService.getOUById(ouID));
+//            }
+//            commonResponseDTO.setData(tasks);
+//            commonResponseDTO.setMessage("Task retrieved Successfully");
+//            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+//        } catch (Exception e) {
+//            commonResponseDTO.setMessage("Task retrieval Failed");
+//            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
     @PostMapping("/assign")
     public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
