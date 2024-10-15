@@ -33,14 +33,14 @@ public class TaksService {
         return taskRepo.findById(id).get();
     }
 
-    public Page<Task> findAllTasksByOU(String taskname, OU ou, String status, User user, User createdby, Integer page) {
+    public Page<Task> findAllTasksByOU(String priority, String taskname, OU ou, String status, User user, User createdby, Integer page) {
         Pageable pageable = PageRequest.of(page, 15);
-        return taskRepo.findByOuAndUsers(taskname, ou, status,user,createdby,pageable);
+        return taskRepo.findByOuAndUsers(priority, taskname, ou, status,user,createdby,pageable);
     }
 
-    public Page<Task> findAllTasksByProject(String taskname, Project project, String status, User user, User createdby, Integer page) {
+    public Page<Task> findAllTasksByProject(String priority,String taskname, Project project, String status, User user, User createdby, Integer page) {
         Pageable pageable = PageRequest.of(page, 15);
-        return taskRepo.findByProjectAndUsers(taskname, project, status,user,createdby,pageable);
+        return taskRepo.findByProjectAndUsers(priority,taskname, project, status,user,createdby,pageable);
     }
 
     public List<Task> getAllTask() {

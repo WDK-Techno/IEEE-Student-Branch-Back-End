@@ -94,6 +94,7 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> getTask(
             HttpServletRequest request,
             @PathVariable int ouID,
+            @RequestParam(required = false) String priority,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer user_id,
@@ -116,9 +117,9 @@ public class TaskController {
                 assignedUser = userService.getUserId(user_id);
             }
             if (isTaskPolicy) {
-                tasks = taskService.findAllTasksByOU(search, ou, status, assignedUser, assignedUser, page);
+                tasks = taskService.findAllTasksByOU(priority,search, ou, status, assignedUser, assignedUser, page);
             } else {
-                tasks = taskService.findAllTasksByOU(search, ou, status, user, user, page);
+                tasks = taskService.findAllTasksByOU(priority,search, ou, status, user, user, page);
             }
             commonResponseDTO.setData(tasks);
             commonResponseDTO.setMessage("Task retrieved Successfully");
@@ -134,6 +135,7 @@ public class TaskController {
     @GetMapping("project/{project_id}")
     public ResponseEntity<CommonResponseDTO> getTaskByProject(
             HttpServletRequest request, @PathVariable int project_id,
+            @RequestParam(required = false) String priority,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer user_id,
@@ -153,9 +155,9 @@ public class TaskController {
             User assigneduser = userService.getUserId(user_id);
             Page<Task> tasks;
             if (isTaskMainAvailable) {
-                tasks = taskService.findAllTasksByProject(search, project, status, assigneduser, assigneduser, page);
+                tasks = taskService.findAllTasksByProject(priority,search, project, status, assigneduser, assigneduser, page);
             } else {
-                tasks = taskService.findAllTasksByProject(search, project, status, user, user, page);
+                tasks = taskService.findAllTasksByProject(priority,search, project, status, user, user, page);
             }
             commonResponseDTO.setData(tasks);
             commonResponseDTO.setMessage("Task retrieved Successfully");

@@ -17,22 +17,24 @@ public interface TaskRepo extends JpaRepository<Task, Integer> {
     @Query("SELECT task FROM Task task " +
             "WHERE (:taskname IS NULL OR task.task_name LIKE CONCAT(:taskname, '%')) " +
             "AND (:status IS NULL OR task.status LIKE CONCAT(:status, '%')) " +
+            "AND (:priority IS NULL OR task.status LIKE CONCAT(:priority, '%')) " +
             "AND (:ou IS NULL OR task.ou = :ou) " +
             "AND ((:user IS NULL OR :user MEMBER OF task.users) " +
             "OR (:createdby IS NULL OR task.createdBy = :createdby)) " +
             "ORDER BY task.taskId DESC")
-    Page<Task> findByOuAndUsers(String taskname,OU ou, String status, User user, User createdby, Pageable pageable);
+    Page<Task> findByOuAndUsers(String priority,String taskname,OU ou, String status, User user, User createdby, Pageable pageable);
 
 
 
     @Query("SELECT task FROM Task task " +
             "WHERE (:taskname IS NULL OR task.task_name LIKE CONCAT(:taskname, '%')) " +
             "AND (:status IS NULL OR task.status LIKE CONCAT(:status, '%')) " +
+            "AND (:priority IS NULL OR task.priority LIKE CONCAT(:priority, '%')) " +
             "AND (:project IS NULL OR task.project = :project) " +
             "AND ((:user IS NULL OR :user MEMBER OF task.users) " +
             "OR (:createdby IS NULL OR task.createdBy = :createdby)) " +
             "ORDER BY task.taskId DESC")
-    Page<Task> findByProjectAndUsers(String taskname,Project project, String status, User user, User createdby, Pageable pageable);
+    Page<Task> findByProjectAndUsers(String priority, String taskname,Project project, String status, User user, User createdby, Pageable pageable);
 
 
     Optional<List<Task>> findByParentTask(Task task);
