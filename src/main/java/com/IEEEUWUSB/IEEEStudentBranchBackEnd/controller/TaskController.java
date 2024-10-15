@@ -117,9 +117,9 @@ public class TaskController {
                 assignedUser = userService.getUserId(user_id);
             }
             if (isTaskPolicy) {
-                tasks = taskService.findAllTasksByOU(priority,search, ou, status, assignedUser, assignedUser, page);
+                tasks = taskService.findAllTasksByOU(priority, search, ou, status, assignedUser, assignedUser, page);
             } else {
-                tasks = taskService.findAllTasksByOU(priority,search, ou, status, user, user, page);
+                tasks = taskService.findAllTasksByOU(priority, search, ou, status, user, user, page);
             }
             commonResponseDTO.setData(tasks);
             commonResponseDTO.setMessage("Task retrieved Successfully");
@@ -141,7 +141,7 @@ public class TaskController {
 
         try {
             Task task = taskService.getTaskById(task_id);
-            if(task == null) {
+            if (task == null) {
                 commonResponseDTO.setMessage("Task Not Found");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
             }
@@ -172,16 +172,16 @@ public class TaskController {
 
         try {
             Project project = projectService.getProjectById(project_id);
-            if(project == null) {
+            if (project == null) {
                 commonResponseDTO.setMessage("Project not found");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
             }
             User assigneduser = userService.getUserId(user_id);
             Page<Task> tasks;
             if (isTaskMainAvailable) {
-                tasks = taskService.findAllTasksByProject(priority,search, project, status, assigneduser, assigneduser, page);
+                tasks = taskService.findAllTasksByProject(priority, search, project, status, assigneduser, assigneduser, page);
             } else {
-                tasks = taskService.findAllTasksByProject(priority,search, project, status, user, user, page);
+                tasks = taskService.findAllTasksByProject(priority, search, project, status, user, user, page);
             }
             commonResponseDTO.setData(tasks);
             commonResponseDTO.setMessage("Task retrieved Successfully");
@@ -196,8 +196,20 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-        boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
+
+        List<UserRoleDetails> userRoleDetails = null;
+        boolean isTaskPolicyAvailable = false;
+
+        if (assignTaskDTO.getType().equals("EXCOM")) {
+            userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
+        } else if (assignTaskDTO.getType().equals("Project")) {
+            userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", assignTaskDTO.getProject_id());
+            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
+        }else{
+            commonResponseDTO.setMessage("Invalid Type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+        }
 
         if (isTaskPolicyAvailable) {
             try {

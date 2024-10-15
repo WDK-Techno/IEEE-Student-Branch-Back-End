@@ -1,7 +1,5 @@
-package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
+package com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto;
 
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,18 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@Table(name = "events")
-public class Events {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int eventID;
-
+public class EventDTO {
     private String eventName;
 
     private String status;
@@ -34,8 +25,4 @@ public class Events {
     private String image;
 
     private String decsription;
-
-    @ManyToOne
-    private  Project project;
-
 }
