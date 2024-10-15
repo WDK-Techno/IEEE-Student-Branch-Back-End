@@ -132,6 +132,30 @@ public class TaskController {
     }
 
 
+    @GetMapping("task/{task_id}")
+    public ResponseEntity<CommonResponseDTO> getTaskById(
+            HttpServletRequest request,
+            @PathVariable int task_id
+    ) {
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
+
+        try {
+            Task task = taskService.getTaskById(task_id);
+            if(task == null) {
+                commonResponseDTO.setMessage("Task Not Found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+            commonResponseDTO.setData(task);
+            commonResponseDTO.setMessage("Task retrieved Successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setError(e.getMessage());
+            commonResponseDTO.setMessage("Task retrieval Failed");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
     @GetMapping("project/{project_id}")
     public ResponseEntity<CommonResponseDTO> getTaskByProject(
             HttpServletRequest request, @PathVariable int project_id,
