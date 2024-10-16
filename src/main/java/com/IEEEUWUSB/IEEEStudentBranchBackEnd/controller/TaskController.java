@@ -196,34 +196,37 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
+        try {
+            String taskType = taskService.getTaskById(assignTaskDTO.getTaskId()).getType();
+            List<UserRoleDetails> userRoleDetails = null;
+            boolean isTaskPolicyAvailable = false;
 
-        List<UserRoleDetails> userRoleDetails = null;
-        boolean isTaskPolicyAvailable = false;
+            if (taskType.equals("EXCOM")) {
+                userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+                isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
+            } else if (taskType.equals("Project")) {
+                userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", assignTaskDTO.getProject_id());
+                isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
+            } else {
+                commonResponseDTO.setMessage("Invalid Type");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
 
-        if (assignTaskDTO.getType().equals("EXCOM")) {
-            userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
-        } else if (assignTaskDTO.getType().equals("Project")) {
-            userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", assignTaskDTO.getProject_id());
-            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
-        }else{
-            commonResponseDTO.setMessage("Invalid Type");
-            return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
-        }
+            if (isTaskPolicyAvailable) {
 
-        if (isTaskPolicyAvailable) {
-            try {
                 String message = taskService.assign(assignTaskDTO.getTaskId(), assignTaskDTO.getUsers());
                 commonResponseDTO.setMessage(message);
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-            } catch (Exception e) {
-                commonResponseDTO.setMessage(e.getMessage());
+
+            } else {
+                commonResponseDTO.setMessage("No Authority to Assign Task");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
-        } else {
-            commonResponseDTO.setMessage("No Authority to Assign Task");
+        } catch (Exception e) {
+            commonResponseDTO.setMessage(e.getMessage());
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @PutMapping("/status/{taskId}")

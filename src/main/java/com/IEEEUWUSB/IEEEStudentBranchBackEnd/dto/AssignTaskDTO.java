@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class AssignTaskDTO {
     private int taskId;
     private Integer[] users;
-    private String type;
     private Integer project_id;
 }
