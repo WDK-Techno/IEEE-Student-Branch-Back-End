@@ -17,7 +17,7 @@ public interface TaskRepo extends JpaRepository<Task, Integer> {
     @Query("SELECT task FROM Task task " +
             "WHERE (:taskname IS NULL OR task.task_name LIKE CONCAT(:taskname, '%')) " +
             "AND (:status IS NULL OR task.status LIKE CONCAT(:status, '%')) " +
-            "AND (:priority IS NULL OR task.status LIKE CONCAT(:priority, '%')) " +
+            "AND (:priority IS NULL OR task.priority LIKE CONCAT(:priority, '%')) " +
             "AND (:ou IS NULL OR task.ou = :ou) " +
             "AND ((:user IS NULL OR :user MEMBER OF task.users) " +
             "OR (:createdby IS NULL OR task.createdBy = :createdby)) " +
