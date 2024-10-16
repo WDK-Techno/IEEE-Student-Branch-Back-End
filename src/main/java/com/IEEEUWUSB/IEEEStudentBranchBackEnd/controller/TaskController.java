@@ -4,12 +4,10 @@ import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AssignTaskDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.TaskCreateDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ProjectService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +30,9 @@ public class TaskController {
 
     @Autowired
     private OUService ouService;
+    @Autowired
+    private UserService userService;
+
 
     public TaskController(TaksService taskService) {
         this.taskService = taskService;
@@ -53,15 +54,16 @@ public class TaskController {
                         .end_date(task.getEnd_date())
                         .task_name(task.getTask_name())
                         .type(task.getType())
+                        .priority(task.getPriority())
                         .status("TODO")
                         .createdBy(user)
                         .build();
-                if(task.getType().equals("EXCOM")){
+                if (task.getType().equals("EXCOM")) {
                     ou = ouService.getOUById(task.getOu_id());
                     List<UserRoleDetails> userRoleDetailsExcom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
                     isPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExcom, "EXCOM_TASK");
                     newTask.setOu(ou);
-                }else if(task.getType().equals("PROJECT")){
+                } else if (task.getType().equals("PROJECT")) {
                     project = projectService.getProjectById(task.getProject_id());
                     List<UserRoleDetails> userRoleDetailsProject = userRoleDetailsServices.getuserroledetailsbyuserandproject(user, true, project);
                     isPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsProject, "PROJECT_TASK");
@@ -89,18 +91,97 @@ public class TaskController {
     }
 
     @GetMapping("/{ouID}")
-    public ResponseEntity<CommonResponseDTO> getTask(HttpServletRequest request, @PathVariable int ouID) {
-        CommonResponseDTO<List<Task>> commonResponseDTO = new CommonResponseDTO<>();
+    public ResponseEntity<CommonResponseDTO> getTask(
+            HttpServletRequest request,
+            @PathVariable int ouID,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer user_id,
+            @RequestParam(required = false, defaultValue = "0") Integer page
+    ) {
+        CommonResponseDTO<Page<Task>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         boolean isTaskPolicy = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK");
 
         try {
-            List<Task> tasks;
+            Page<Task> tasks;
+            OU ou = ouService.getOUById(ouID);
+            if (ou == null) {
+                commonResponseDTO.setMessage("OU not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+            User assignedUser = null;
+            if (user_id != null) {
+                assignedUser = userService.getUserId(user_id);
+            }
             if (isTaskPolicy) {
-                tasks = taskService.findAllTasksByOU(ouService.getOUById(ouID));
+                tasks = taskService.findAllTasksByOU(priority, search, ou, status, assignedUser, assignedUser, page);
             } else {
-                tasks = taskService.findMyTasksByOU(user, ouService.getOUById(ouID));
+                tasks = taskService.findAllTasksByOU(priority, search, ou, status, user, user, page);
+            }
+            commonResponseDTO.setData(tasks);
+            commonResponseDTO.setMessage("Task retrieved Successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setError(e.getMessage());
+            commonResponseDTO.setMessage("Task retrieval Failed");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping("task/{task_id}")
+    public ResponseEntity<CommonResponseDTO> getTaskById(
+            HttpServletRequest request,
+            @PathVariable int task_id
+    ) {
+        CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
+
+        try {
+            Task task = taskService.getTaskById(task_id);
+            if (task == null) {
+                commonResponseDTO.setMessage("Task Not Found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+            commonResponseDTO.setData(task);
+            commonResponseDTO.setMessage("Task retrieved Successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            commonResponseDTO.setError(e.getMessage());
+            commonResponseDTO.setMessage("Task retrieval Failed");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping("project/{project_id}")
+    public ResponseEntity<CommonResponseDTO> getTaskByProject(
+            HttpServletRequest request, @PathVariable int project_id,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer user_id,
+            @RequestParam(required = false, defaultValue = "0") Integer page
+    ) {
+        CommonResponseDTO<Page<Task>> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isTaskMainAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+
+        try {
+            Project project = projectService.getProjectById(project_id);
+            if (project == null) {
+                commonResponseDTO.setMessage("Project not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+            }
+            User assigneduser = userService.getUserId(user_id);
+            Page<Task> tasks;
+            if (isTaskMainAvailable) {
+                tasks = taskService.findAllTasksByProject(priority, search, project, status, assigneduser, assigneduser, page);
+            } else {
+                tasks = taskService.findAllTasksByProject(priority, search, project, status, user, user, page);
             }
             commonResponseDTO.setData(tasks);
             commonResponseDTO.setMessage("Task retrieved Successfully");
@@ -115,8 +196,20 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
-        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
-        boolean isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
+
+        List<UserRoleDetails> userRoleDetails = null;
+        boolean isTaskPolicyAvailable = false;
+
+        if (assignTaskDTO.getType().equals("EXCOM")) {
+            userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
+            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
+        } else if (assignTaskDTO.getType().equals("Project")) {
+            userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", assignTaskDTO.getProject_id());
+            isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
+        }else{
+            commonResponseDTO.setMessage("Invalid Type");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+        }
 
         if (isTaskPolicyAvailable) {
             try {
@@ -195,15 +288,12 @@ public class TaskController {
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
             }
 
-            // Update the task attributes
             task.setTask_name(taskDTO.getTask_name());
             task.setPriority(taskDTO.getPriority());
             task.setType(taskDTO.getType());
             task.setStart_date(taskDTO.getStart_date());
             task.setEnd_date(taskDTO.getEnd_date());
             task.setStatus(taskDTO.getStatus());
-
-            // Save the updated task
             Task updatedTask = taskService.saveTask(task);
 
             commonResponseDTO.setData(updatedTask);
