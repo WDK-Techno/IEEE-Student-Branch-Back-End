@@ -260,8 +260,8 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}")
-    public ResponseEntity<CommonResponseDTO> setStatus(HttpServletRequest request,
-                                                       @PathVariable int taskID,
+    public ResponseEntity<CommonResponseDTO> editTask(HttpServletRequest request,
+                                                       @PathVariable int taskId,
                                                        @RequestBody TaskCreateDTO taskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
 
@@ -273,18 +273,18 @@ public class TaskController {
                 taskDTO.getPriority().equals("MEDIUM") ||
                 taskDTO.getPriority().equals("LOW");
 
-        boolean typeValidation = taskDTO.getType().equals("TODO") ||
-                taskDTO.getType().equals("PROGRESS") ||
-                taskDTO.getType().equals("COMPLETE");
+        boolean statusValidation = taskDTO.getStatus().equals("TODO") ||
+                taskDTO.getStatus().equals("PROGRESS") ||
+                taskDTO.getStatus().equals("COMPLETE");
 
-        if (!priorityValidation || !typeValidation) {
-            commonResponseDTO.setMessage("Invalid task priority or type");
+        if (!priorityValidation || !statusValidation) {
+            commonResponseDTO.setMessage("Invalid task priority or status");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
 
         try {
             // Retrieve the task by ID
-            Task task = taskService.findTaskById(taskID);
+            Task task = taskService.findTaskById(taskId);
 
             if (task == null) {
                 commonResponseDTO.setMessage("Task not found");
@@ -293,10 +293,10 @@ public class TaskController {
 
             task.setTask_name(taskDTO.getTask_name());
             task.setPriority(taskDTO.getPriority());
-            task.setType(taskDTO.getType());
             task.setStart_date(taskDTO.getStart_date());
             task.setEnd_date(taskDTO.getEnd_date());
             task.setStatus(taskDTO.getStatus());
+            task.setDescription(taskDTO.getDescription());
             Task updatedTask = taskService.saveTask(task);
 
             commonResponseDTO.setData(updatedTask);

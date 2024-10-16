@@ -20,6 +20,7 @@ public class TaskCreateDTO {
     private Integer ou_id;
     private Integer project_id;
     private String priority;
+    private String description;
 
 
 
