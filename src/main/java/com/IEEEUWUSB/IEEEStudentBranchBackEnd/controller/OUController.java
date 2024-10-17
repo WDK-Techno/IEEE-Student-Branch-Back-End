@@ -2,9 +2,11 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.TermYear;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TermYearService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class OUController {
 
     @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
+    @Autowired
+    private TermYearService termYearService;
 
     public OUController(OUService ouService) {
         this.ouService = ouService;
@@ -163,6 +167,11 @@ public class OUController {
                     }
                 }
 
+                if(termyearId==null){
+                    TermYear activeTermYear = termYearService.findByActiveStatus();
+                    termyearId = activeTermYear.getTermyearId();
+                }
+
                 Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ouid, termyearId);
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved EXCOM Members");
@@ -177,7 +186,8 @@ public class OUController {
             try {
                 UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
                 OU ou = (OU) userRoleDetailsExcom.getOu();
-                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(), termyearId);
+                TermYear myTermYear = userRoleDetailsExcom.getTermyear();
+                Page<UserRoleDetails> data = userRoleDetailsServices.getAllExcomUserDetails(page, search, ou.getOuID(),myTermYear.getTermyearId() );
                 commonResponseDTO.setData(data);
                 commonResponseDTO.setMessage("Successfully retrieved respective Excom Members");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
