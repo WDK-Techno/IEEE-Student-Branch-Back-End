@@ -38,6 +38,11 @@ public class ProjectService {
         return projectRepository.findAllProjects(name, status, ou,termYear,pageable);
     }
 
+    public Page<Project> getAllProjectByExom(Integer page, String name, String status, OU ou, TermYear termYear) {
+        Pageable pageable = PageRequest.of(page, 15);
+        return projectRepository.findAllProjectsByExom(name, status, ou,termYear,pageable);
+    }
+
     public Page<Project> getAllProjectByuser(Integer page, String name, String status, User user) {
         Pageable pageable = PageRequest.of(page, 15);
         return projectRepository.findProjectsByUser(name, status,user,user,pageable);
