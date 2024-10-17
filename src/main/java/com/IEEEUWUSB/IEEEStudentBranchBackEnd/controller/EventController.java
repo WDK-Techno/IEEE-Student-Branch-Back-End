@@ -101,7 +101,7 @@ public class EventController {
                 getevent.setDate(event.getDate());
                 getevent.setVenue(event.getVenue());
                 getevent.setImage(event.getImage());
-                getevent.setDecsription(event.getDecsription());
+                getevent.setDescription(event.getDescription());
                 Events savedEvent = eventService.saveEvent(getevent);
                 commonResponseDTO.setData(savedEvent);
                 commonResponseDTO.setMessage("Successfully edit the Event");
