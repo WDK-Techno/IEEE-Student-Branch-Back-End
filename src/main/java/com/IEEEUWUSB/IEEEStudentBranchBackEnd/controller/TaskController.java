@@ -44,6 +44,8 @@ public class TaskController {
         boolean priorityValidation = task.getPriority().equals("HIGH") || task.getPriority().equals("MEDIUM") || task.getPriority().equals("LOW");
         boolean typeValidation = task.getType().equals("EXCOM") || task.getType().equals("PROJECT");
         User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isTaskMainAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
         if (typeValidation && priorityValidation) {
             try {
                 boolean isPolicyAvailable = false;
@@ -66,7 +68,7 @@ public class TaskController {
                 } else if (task.getType().equals("PROJECT")) {
                     project = projectService.getProjectById(task.getProject_id());
                     List<UserRoleDetails> userRoleDetailsProject = userRoleDetailsServices.getuserroledetailsbyuserandproject(user, true, project);
-                    isPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsProject, "PROJECT_TASK");
+                    isPolicyAvailable = isTaskMainAvailable || userRoleDetailsServices.isPolicyAvailable(userRoleDetailsProject, "PROJECT_TASK");
                     newTask.setProject(project);
                 }
 
@@ -171,13 +173,16 @@ public class TaskController {
         boolean isTaskMainAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
 
         try {
+            Page<Task> tasks;
             Project project = projectService.getProjectById(project_id);
             if (project == null) {
                 commonResponseDTO.setMessage("Project not found");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
             }
-            User assigneduser = userService.getUserId(user_id);
-            Page<Task> tasks;
+            User assigneduser = null;
+            if (user_id != null) {
+                assigneduser = userService.getUserId(user_id);
+            }
             if (isTaskMainAvailable) {
                 tasks = taskService.findAllTasksByProject(priority, search, project, status, assigneduser, assigneduser, page);
             } else {
@@ -187,6 +192,7 @@ public class TaskController {
             commonResponseDTO.setMessage("Task retrieved Successfully");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
+            commonResponseDTO.setError(e.getMessage());
             commonResponseDTO.setMessage("Task retrieval Failed");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
@@ -196,6 +202,8 @@ public class TaskController {
     public ResponseEntity<CommonResponseDTO> assignUser(HttpServletRequest request, @RequestBody AssignTaskDTO assignTaskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isTaskMainAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "PROJECT");
         try {
             String taskType = taskService.getTaskById(assignTaskDTO.getTaskId()).getType();
             List<UserRoleDetails> userRoleDetails = null;
@@ -204,9 +212,9 @@ public class TaskController {
             if (taskType.equals("EXCOM")) {
                 userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
                 isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_TASK_ASSIGN");
-            } else if (taskType.equals("Project")) {
+            } else if (taskType.equals("PROJECT")) {
                 userRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", assignTaskDTO.getProject_id());
-                isTaskPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
+                isTaskPolicyAvailable = isTaskMainAvailable || userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_EVENT");
             } else {
                 commonResponseDTO.setMessage("Invalid Type");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);

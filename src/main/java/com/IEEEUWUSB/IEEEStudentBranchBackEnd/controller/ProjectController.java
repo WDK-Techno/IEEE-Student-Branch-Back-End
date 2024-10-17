@@ -161,7 +161,7 @@ public class ProjectController {
 
         try {
             OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
-            TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : null;
+            TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : termYearService.findByActiveStatus();
 
             Page<Project> data;
             if (isProjectPolicyAvailable) {
