@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.AssignTaskDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.TaskCreateDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.*;
@@ -269,8 +270,8 @@ public class TaskController {
 
     @PutMapping("/{taskId}")
     public ResponseEntity<CommonResponseDTO> editTask(HttpServletRequest request,
-                                                       @PathVariable int taskId,
-                                                       @RequestBody TaskCreateDTO taskDTO) {
+                                                      @PathVariable int taskId,
+                                                      @RequestBody TaskCreateDTO taskDTO) {
         CommonResponseDTO<Task> commonResponseDTO = new CommonResponseDTO<>();
 
         // Retrieve the user from the request
@@ -318,4 +319,64 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<CommonResponseDTO> getTaskCount(HttpServletRequest request,
+                                                          @RequestParam(required = true) String taskType,
+                                                          @RequestParam(required = false) Integer projectId,
+                                                          @RequestParam(required = false) Integer ouId) {
+
+        CommonResponseDTO<StatusCountDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        OU ou = (ouId != null) ? ouService.getOUById(ouId) : null;
+        Project project = (projectId != null) ? projectService.getProjectById(projectId) : null;
+
+
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isExcomPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM");
+        boolean isMainProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+
+        List<UserRoleDetails> userRoleDetails1 = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", projectId);
+        boolean isProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails1, "PROJECT_TASK");
+
+
+
+        try {
+            StatusCountDTO data = null;
+            if (taskType.equals("EXCOM") && isExcomPolicyAvailable && ouId != null) {
+                long todo = taskService.countTaskByOu(ou, "TODO");
+                long progress = taskService.countTaskByOu(ou, "PROGRESS");
+                long complete = taskService.countTaskByOu(ou, "COMPLETE");
+                data = new StatusCountDTO(todo, progress, complete);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully EXCOM Tasks Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+            } else if (taskType.equals("PROJECT") && (isProjectPolicyAvailable || isMainProjectPolicyAvailable) && projectId != null) {
+                long todo = taskService.countAllTaskByProject(project, "TODO");
+                long progress = taskService.countAllTaskByProject(project, "PROGRESS");
+                long complete = taskService.countAllTaskByProject(project, "COMPLETE");
+                data = new StatusCountDTO(todo, progress, complete);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully ALL Project Tasks Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else if (taskType.equals("PROJECT")  && projectId != null) {
+                long todo = taskService.countTaskByProjectWithUser(project, user, "TODO");
+                long progress = taskService.countTaskByProjectWithUser(project, user, "PROGRESS");
+                long complete = taskService.countTaskByProjectWithUser(project, user, "COMPLETE");
+                data = new StatusCountDTO(todo, progress, complete);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Project Tasks Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            }else{
+                commonResponseDTO.setMessage("Invalid Task Type");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get task count");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+
+    }
 }

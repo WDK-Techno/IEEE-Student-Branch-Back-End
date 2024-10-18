@@ -39,5 +39,17 @@ public interface TaskRepo extends JpaRepository<Task, Integer> {
 
     Optional<List<Task>> findByParentTask(Task task);
 
+    long countByProjectAndStatus(
+           Project project, String status
+    );
+
+    @Query("SELECT COUNT(task) FROM Task task " +
+            "WHERE task.status = :status " +
+            "AND task.project = :project " +
+            "AND (:user MEMBER OF task.users OR task.createdBy = :user)")
+    long countProjectTaskWithUser(Project project, User user, String status);
+
+    long countByOuAndStatus(OU ou, String status);
+
 
 }

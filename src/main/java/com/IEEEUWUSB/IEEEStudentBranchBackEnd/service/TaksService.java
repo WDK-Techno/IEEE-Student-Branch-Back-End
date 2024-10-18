@@ -76,4 +76,14 @@ public class TaksService {
     public Task getTaskById(int taskId) {
         return taskRepo.findById(taskId).orElse(null);
     }
+
+    public long countAllTaskByProject(Project project, String status) {
+        return taskRepo.countByProjectAndStatus(project,status);
+    }
+    public long countTaskByProjectWithUser(Project project,User user,String status) {
+        return taskRepo.countProjectTaskWithUser(project, user,status);
+    }
+    public long countTaskByOu(OU ou, String status){
+        return taskRepo.countByOuAndStatus(ou,status);
+    }
 }
