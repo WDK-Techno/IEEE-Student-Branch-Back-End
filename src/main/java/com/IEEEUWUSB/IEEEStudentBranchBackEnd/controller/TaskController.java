@@ -184,7 +184,10 @@ public class TaskController {
             if (user_id != null) {
                 assigneduser = userService.getUserId(user_id);
             }
-            if (isTaskMainAvailable) {
+
+            List<UserRoleDetails> ProjectuserRoleDetails = userRoleDetailsServices.getuserRoleDetailsByProject(user, true, "PROJECT", project_id);
+            boolean isTaskProjectMainAvailable = userRoleDetailsServices.isPolicyAvailable(ProjectuserRoleDetails, "PROJECT_TASK");
+            if (isTaskMainAvailable || isTaskProjectMainAvailable) {
                 tasks = taskService.findAllTasksByProject(priority, search, project, status, assigneduser, assigneduser, page);
             } else {
                 tasks = taskService.findAllTasksByProject(priority, search, project, status, user, user, page);

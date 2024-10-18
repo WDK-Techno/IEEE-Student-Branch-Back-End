@@ -96,14 +96,9 @@ public class CommentController {
         CommonResponseDTO<List<Comment>> commonResponseDTO = new CommonResponseDTO<>();
         try {
             List<Comment> comments = commentService.getCommentsByTask(taskID);
-            if (comments != null && !comments.isEmpty()) {
                 commonResponseDTO.setData(comments);
                 commonResponseDTO.setMessage("Comments retrieved successfully");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
-            } else {
-                commonResponseDTO.setMessage("No comments found for the specified task");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
-            }
         } catch (Exception e) {
             commonResponseDTO.setMessage("Failed to retrieve comments");
             commonResponseDTO.setError(e.getMessage());

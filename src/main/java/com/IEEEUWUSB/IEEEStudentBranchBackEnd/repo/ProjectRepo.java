@@ -18,6 +18,14 @@ public interface ProjectRepo extends JpaRepository<Project, Integer> {
     @Query("SELECT project FROM Project project " +
             "WHERE (:projectName IS NULL OR project.projectName LIKE CONCAT(:projectName, '%')) " +
             "AND (:status IS NULL OR project.status LIKE CONCAT(:status, '%')) " +
+            "AND (:ou MEMBER OF project.ous) " +
+            "AND (:termYear IS NULL OR project.termyear = :termYear) " +
+            "ORDER BY project.projectID DESC")
+    Page<Project> findAllProjectsByExom(String projectName, String status, OU ou, TermYear termYear, Pageable pageable);
+
+    @Query("SELECT project FROM Project project " +
+            "WHERE (:projectName IS NULL OR project.projectName LIKE CONCAT(:projectName, '%')) " +
+            "AND (:status IS NULL OR project.status LIKE CONCAT(:status, '%')) " +
             "AND ((:user IS NULL OR :user MEMBER OF project.users) " +
             "OR (:createdby IS NULL OR project.createdBy = :createdby)) " +
             "ORDER BY project.projectID DESC")

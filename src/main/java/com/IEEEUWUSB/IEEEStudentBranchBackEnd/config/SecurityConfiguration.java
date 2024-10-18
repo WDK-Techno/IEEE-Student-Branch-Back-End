@@ -99,6 +99,7 @@ public class SecurityConfiguration {
                 //policies
                 policies.add(Policy.builder().policy("Finance").policyCode("FINANCE").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project").policyCode("PROJECT").type("MAIN").build());
+                policies.add(Policy.builder().policy("Project").policyCode("PROJECT_ALL").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project_finance").policyCode("PROJECT_FINANCE").type("PROJECT").build());
                 policies.add(Policy.builder().policy("Project_task").policyCode("PROJECT_TASK").type("PROJECT").build());
