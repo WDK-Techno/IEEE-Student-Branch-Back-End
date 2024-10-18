@@ -159,6 +159,7 @@ public class ProjectController {
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
         boolean isExcomAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM");
+        boolean isExcomAllAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM_ALL");
         boolean isProjectAllAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_ALL");
 
         try {
@@ -166,7 +167,7 @@ public class ProjectController {
             TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : termYearService.findByActiveStatus();
 
             Page<Project> data;
-            if (isProjectAllAvailable) {
+            if (isProjectAllAvailable ||isExcomAllAvailable) {
                 data = projectService.getAllProject(page, search, status, ou, termyear);
 
             } else if(isExcomAvailable){
