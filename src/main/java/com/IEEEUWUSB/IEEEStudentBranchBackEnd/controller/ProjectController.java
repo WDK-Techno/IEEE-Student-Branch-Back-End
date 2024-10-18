@@ -157,16 +157,22 @@ public class ProjectController {
         CommonResponseDTO<Page<Project>> commonResponseDTO = new CommonResponseDTO<>();
         User user = (User) request.getAttribute("user");
         List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
-        boolean isProjectPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT");
+        UserRoleDetails userRoleDetailsExcom = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
+        boolean isExcomAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "EXCOM");
+        boolean isProjectAllAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "PROJECT_ALL");
 
         try {
             OU ou = (ouid != null) ? ouService.getOUById(ouid) : null;
             TermYear termyear = (termYearId != null) ? termYearService.findByid(termYearId) : termYearService.findByActiveStatus();
 
             Page<Project> data;
-            if (isProjectPolicyAvailable) {
+            if (isProjectAllAvailable) {
                 data = projectService.getAllProject(page, search, status, ou, termyear);
-            } else {
+
+            } else if(isExcomAvailable){
+                ou = userRoleDetailsExcom.getOu();
+                data = projectService.getAllProjectByExom(page, search, status, ou, termyear);
+            }else {
                 data = projectService.getAllProjectByuser(page, search, status, user);
             }
 

@@ -33,7 +33,7 @@ public class Events {
 
     private String image;
 
-    private String decsription;
+    private String description;
 
     @ManyToOne
     private  Project project;
