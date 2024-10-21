@@ -247,7 +247,7 @@ public class UserController {
             }
 
             user.setEmail(userDTO.getEmail());
-            user.setIeee_email(userDTO.getIeee_email());
+            user.setIeee_email(userDTO.getIeee_email().isEmpty() ? null : userDTO.getIeee_email());
             user.setFirstName(userDTO.getFirstName());
             user.setLastName(userDTO.getLastName());
             user.setIeee_membership_number(userDTO.getIeee_membership_number());
