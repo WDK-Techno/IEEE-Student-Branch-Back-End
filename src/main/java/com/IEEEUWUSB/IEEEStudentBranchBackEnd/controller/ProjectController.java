@@ -23,6 +23,9 @@ public class ProjectController {
     private UserRoleDetailsServices userRoleDetailsServices;
 
     @Autowired
+    public WalletService walletService;
+
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -69,6 +72,11 @@ public class ProjectController {
                     }
                 }
                 Project SavedProject = projectService.saveProject(newproject);
+                Wallet newWallet = Wallet.builder()
+                        .type("PROJECT")
+                        .project(SavedProject)
+                        .build();
+                walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(SavedProject);
                 commonResponseDTO.setMessage("Successfully added Project");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
