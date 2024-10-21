@@ -29,6 +29,9 @@ public class SecurityConfiguration {
     DataSource dataSource;
 
     @Autowired
+    public WalletService walletService;
+
+    @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
     @Autowired
@@ -116,6 +119,12 @@ public class SecurityConfiguration {
                 policies.add(Policy.builder().policy("service").policyCode("SERVICE").type("MAIN").build());
                 policies.add(Policy.builder().policy("service_volunteer").policyCode("SERVICE_VOLUNTEER").type("MAIN").build());
 
+
+                Wallet mainWallet = Wallet.builder()
+                        .type("MAIN")
+                        .build();
+
+                walletService.saveWallet(mainWallet);
 
                 for (Policy policy : policies) {
                     Policy savedPolicies = policyService.CreatePolicy(policy);
