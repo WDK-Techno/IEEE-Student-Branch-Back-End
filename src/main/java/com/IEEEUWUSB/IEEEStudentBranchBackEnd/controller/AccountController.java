@@ -83,7 +83,7 @@ public class AccountController {
                 Account savedAccount = accountService.saveAccount(existingAccount);
                 commonResponseDTO.setData(savedAccount);
                 commonResponseDTO.setMessage("Successfully edit Account");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
 
                 commonResponseDTO.setMessage("failed to edit Account");
@@ -111,7 +111,7 @@ public class AccountController {
                 List<Account> accounts =  accountService.getAllAccount();
                 commonResponseDTO.setData(accounts);
                 commonResponseDTO.setMessage("Successfully retrieved Account");
-                return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
             } catch (Exception e) {
 
                 commonResponseDTO.setMessage("failed to retrieved Account");
