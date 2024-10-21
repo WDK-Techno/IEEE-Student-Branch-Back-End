@@ -122,6 +122,7 @@ public class SecurityConfiguration {
 
                 Wallet mainWallet = Wallet.builder()
                         .type("MAIN")
+                        .amount(0.0)
                         .build();
 
                 walletService.saveWallet(mainWallet);

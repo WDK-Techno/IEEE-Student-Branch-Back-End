@@ -26,4 +26,6 @@ public class Wallet {
 
     @ManyToOne
     private Project project;
+
+    private Double amount;
 }

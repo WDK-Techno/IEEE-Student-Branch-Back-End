@@ -55,6 +55,11 @@ public class ProjectController {
             try {
                 TermYear ActiveTermYear = termYearService.findByActiveStatus();
 
+                if(ActiveTermYear == null) {
+                    commonResponseDTO.setMessage("No active term year");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
                 Project newproject = Project.builder()
                         .projectName(projectDTO.getProject_name())
                         .description(projectDTO.getDescription())
@@ -75,6 +80,7 @@ public class ProjectController {
                 Wallet newWallet = Wallet.builder()
                         .type("PROJECT")
                         .project(SavedProject)
+                        .amount(0.0)
                         .build();
                 walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(SavedProject);
