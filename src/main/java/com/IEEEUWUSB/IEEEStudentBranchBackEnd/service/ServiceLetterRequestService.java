@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,12 +30,14 @@ public class ServiceLetterRequestService {
         Pageable pageable = PageRequest.of(page, 5);
         return serviceLetterRequestRepo.findServiceRequestByUser(user, pageable);
     }
-
     public Page<ServiceLetterRequest> getAllServiceLetterRequests(Integer page, String search, String status) {
         Pageable pageable = PageRequest.of(page, 15);
         return serviceLetterRequestRepo.findAllServiceRequests(search,status,pageable);
     }
-
+    public ServiceLetterRequest getServiceLetterRequestById(Integer id) {
+        Optional<ServiceLetterRequest> serviceLetterRequest = serviceLetterRequestRepo.findById(id);
+        return serviceLetterRequest.orElse(null);
+    }
 //    public ServiceLetterRequest updateServiceLetterRequestStatus(ServiceLetterRequest serviceLetterRequest) {
 //        return serviceLetterRequestRepo.save()
 //    }

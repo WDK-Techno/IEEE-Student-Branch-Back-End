@@ -53,6 +53,39 @@ public class ServiceLetterRequestController {
         }
     }
 
+    @PutMapping("/{request_id}")
+    public ResponseEntity<CommonResponseDTO> updateStatus(HttpServletRequest request, @PathVariable int request_id) {
+        CommonResponseDTO<ServiceLetterRequest> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+            User user = (User) request.getAttribute("user");
+            List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+            boolean isServicePolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "SERVICE");
+
+            ServiceLetterRequest serviceLetterRequest = serviceLetterRequestService.getServiceLetterRequestById(request_id);
+            if (isServicePolicyAvailable) {
+                if (serviceLetterRequest == null) {
+                    commonResponseDTO.setMessage("Service Letter Request not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                } else {
+                    serviceLetterRequest.setStatus("REVIEWED");
+                    serviceLetterRequest.setReviewed_by(user);
+                    serviceLetterRequest.setReviewed_date(LocalDateTime.now());
+                    ServiceLetterRequest updatedServiceRequest = serviceLetterRequestService.saveServiceLetterRequest(serviceLetterRequest);
+                    commonResponseDTO.setData(updatedServiceRequest);
+                    commonResponseDTO.setMessage("Service Letter status update successfully");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+                }
+            } else {
+                commonResponseDTO.setMessage("You have no permission to Review letter requests");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            commonResponseDTO.setMessage(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<CommonResponseDTO> getAllServieLetterRequests(HttpServletRequest request,
                                                                         @RequestParam(required = false) String search,
@@ -99,5 +132,6 @@ public class ServiceLetterRequestController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
 
 }

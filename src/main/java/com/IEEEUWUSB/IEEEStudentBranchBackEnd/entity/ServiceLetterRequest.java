@@ -33,7 +33,6 @@ public class ServiceLetterRequest {
     private LocalDate request_date;
     @Column(nullable = false)
     private Date due_date;
-    @Column(nullable = false)
     private LocalDateTime reviewed_date;
     @ManyToOne
     private User reviewed_by;
