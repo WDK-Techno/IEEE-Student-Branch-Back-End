@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -32,6 +33,8 @@ public class ServiceLetterRequest {
     private LocalDate request_date;
     @Column(nullable = false)
     private Date due_date;
+    @Column(nullable = false)
+    private LocalDateTime reviewed_date;
     @ManyToOne
     private User reviewed_by;
     @ManyToOne
