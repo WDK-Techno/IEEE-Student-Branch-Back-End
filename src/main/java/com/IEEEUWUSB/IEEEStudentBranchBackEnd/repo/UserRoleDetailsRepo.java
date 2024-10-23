@@ -35,6 +35,7 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
     @Query("SELECT urd FROM UserRoleDetails urd " +
             "WHERE (:termyearId IS NOT NULL OR urd.isActive = true) " +
             "AND urd.type = 'EXCOM' " +
+            "AND urd.isActive = true " +
             "AND (:search IS NULL OR urd.user.firstName LIKE CONCAT('%', :search, '%') " +
             "OR urd.user.lastName LIKE CONCAT('%', :search, '%') " +
             "OR urd.user.contactNo LIKE CONCAT('%', :search, '%')) " +
