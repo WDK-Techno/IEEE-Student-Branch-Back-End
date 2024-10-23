@@ -29,6 +29,9 @@ public class SecurityConfiguration {
     DataSource dataSource;
 
     @Autowired
+    public WalletService walletService;
+
+    @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
     @Autowired
@@ -98,6 +101,9 @@ public class SecurityConfiguration {
 
                 //policies
                 policies.add(Policy.builder().policy("Finance").policyCode("FINANCE").type("MAIN").build());
+                policies.add(Policy.builder().policy("Finance Transaction").policyCode("FINANCE_TRANSACTION").type("MAIN").build());
+                policies.add(Policy.builder().policy("Finance budget").policyCode("FINANCE_BUDGET_PROPOSAL").type("MAIN").build());
+                policies.add(Policy.builder().policy("Finance all").policyCode("FINANCE_ALL").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project").policyCode("PROJECT").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project").policyCode("PROJECT_ALL").type("MAIN").build());
                 policies.add(Policy.builder().policy("Project_timeline").policyCode("PROJECT_TIME").type("MAIN").build());
@@ -113,6 +119,13 @@ public class SecurityConfiguration {
                 policies.add(Policy.builder().policy("service").policyCode("SERVICE").type("MAIN").build());
                 policies.add(Policy.builder().policy("service_volunteer").policyCode("SERVICE_VOLUNTEER").type("MAIN").build());
 
+
+                Wallet mainWallet = Wallet.builder()
+                        .type("MAIN")
+                        .amount(0.0)
+                        .build();
+
+                walletService.saveWallet(mainWallet);
 
                 for (Policy policy : policies) {
                     Policy savedPolicies = policyService.CreatePolicy(policy);

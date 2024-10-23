@@ -23,6 +23,9 @@ public class ProjectController {
     private UserRoleDetailsServices userRoleDetailsServices;
 
     @Autowired
+    public WalletService walletService;
+
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -52,6 +55,11 @@ public class ProjectController {
             try {
                 TermYear ActiveTermYear = termYearService.findByActiveStatus();
 
+                if(ActiveTermYear == null) {
+                    commonResponseDTO.setMessage("No active term year");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+                }
+
                 Project newproject = Project.builder()
                         .projectName(projectDTO.getProject_name())
                         .description(projectDTO.getDescription())
@@ -69,6 +77,12 @@ public class ProjectController {
                     }
                 }
                 Project SavedProject = projectService.saveProject(newproject);
+                Wallet newWallet = Wallet.builder()
+                        .type("PROJECT")
+                        .project(SavedProject)
+                        .amount(0.0)
+                        .build();
+                walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(SavedProject);
                 commonResponseDTO.setMessage("Successfully added Project");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);

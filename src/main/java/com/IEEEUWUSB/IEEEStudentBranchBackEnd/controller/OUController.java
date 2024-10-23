@@ -1,13 +1,11 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.TermYear;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.OUService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TermYearService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.WalletService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,9 @@ import java.util.List;
 public class OUController {
     @Autowired
     public final OUService ouService;
+
+    @Autowired
+    public WalletService walletService;
 
     @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
@@ -41,7 +42,14 @@ public class OUController {
         boolean isOtherPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "OTHER");
         if (isOtherPolicyAvailable) {
             try {
+
                 OU newOu = ouService.createOU(ou);
+                Wallet newWallet = Wallet.builder()
+                        .type("EXCOM")
+                        .ou(newOu)
+                        .amount(0.0)
+                        .build();
+                walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(newOu);
                 commonResponseDTO.setMessage("Successfully OU Added");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.CREATED);
