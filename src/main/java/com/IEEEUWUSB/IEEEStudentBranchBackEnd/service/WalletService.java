@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class WalletService {
@@ -18,5 +20,13 @@ public class WalletService {
 
     public Wallet saveWallet(Wallet wallet) {
         return walletRepo.save(wallet);
+    }
+
+    public List<Wallet> getAllWallet() {
+        return walletRepo.findAll();
+    }
+
+    public List<Wallet> getAllExcomWallet(String type) {
+        return walletRepo.findByType(type);
     }
 }
