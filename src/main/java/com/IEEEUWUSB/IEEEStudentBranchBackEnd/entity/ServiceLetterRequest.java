@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -27,10 +28,14 @@ public class ServiceLetterRequest {
     private String email;
     @Column(nullable = false)
     private String status;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean type_excom;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean type_project;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean type_other;
     @Column(nullable = false)
-    private String type;
-    @Column(nullable = false)
-    private LocalDate request_date;
+    private LocalDateTime request_date;
     @Column(nullable = false)
     private Date due_date;
     private LocalDateTime reviewed_date;
@@ -39,4 +44,16 @@ public class ServiceLetterRequest {
     @ManyToOne
     private User user;
 
+    @PrePersist
+    public void prePersist() {
+        if (type_excom == null) {
+            type_excom = false;
+        }
+        if (type_project == null) {
+            type_project = false;
+        }
+        if (type_other == null) {
+            type_other = false;
+        }
+    }
 }

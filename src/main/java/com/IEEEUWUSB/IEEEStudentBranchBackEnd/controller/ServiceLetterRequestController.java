@@ -31,6 +31,16 @@ public class ServiceLetterRequestController {
     @PostMapping
     public ResponseEntity<CommonResponseDTO> addRequest(HttpServletRequest request, @RequestBody ServiceLetterReqDTO service) {
         CommonResponseDTO<ServiceLetterRequest> commonResponseDTO = new CommonResponseDTO<>();
+        if (service.getType_excom() == null) {
+            service.setType_excom(false);
+        }
+        if (service.getType_project() == null) {
+            service.setType_project(false);
+        }
+        if (service.getType_other() == null) {
+            service.setType_other(false);
+        }
+
         try {
             User user = (User) request.getAttribute("user");
             ServiceLetterRequest newRequest = ServiceLetterRequest.builder()
@@ -38,8 +48,10 @@ public class ServiceLetterRequestController {
                     .remarks(service.getRemarks())
                     .email(service.getEmail())
                     .status("TODO")
-                    .type(service.getType())
-                    .request_date(LocalDate.now())
+                    .type_excom(service.getType_excom())
+                    .type_project(service.getType_project())
+                    .type_other(service.getType_other())
+                    .request_date(LocalDateTime.now())
                     .due_date(service.getDue_date())
                     .user(user)
                     .build();
