@@ -38,6 +38,14 @@ public class ServiceLetterRequestService {
         Optional<ServiceLetterRequest> serviceLetterRequest = serviceLetterRequestRepo.findById(id);
         return serviceLetterRequest.orElse(null);
     }
+    public String deleteServiceLetterRequestById(Integer id) {
+        if (serviceLetterRequestRepo.existsById(id)) {
+            serviceLetterRequestRepo.deleteById(id);
+            return "Service Letter Request Deleted Successfully";
+        }else {
+            return "Service Letter Request Not Found";
+        }
+    }
 //    public ServiceLetterRequest updateServiceLetterRequestStatus(ServiceLetterRequest serviceLetterRequest) {
 //        return serviceLetterRequestRepo.save()
 //    }

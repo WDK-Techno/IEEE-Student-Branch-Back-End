@@ -98,6 +98,36 @@ public class ServiceLetterRequestController {
         }
     }
 
+    @DeleteMapping("/{request_id}")
+    public ResponseEntity<CommonResponseDTO> deleteServieLetterRequest(HttpServletRequest request, @PathVariable int request_id) {
+        CommonResponseDTO<ServiceLetterRequest> commonResponseDTO = new CommonResponseDTO<>();
+        try {
+            User user = (User) request.getAttribute("user");
+
+            ServiceLetterRequest serviceLetterRequest = serviceLetterRequestService.getServiceLetterRequestById(request_id);
+
+            if (serviceLetterRequest == null) {
+                commonResponseDTO.setMessage("Service Letter Request not found");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            } else if (!serviceLetterRequest.getUser().equals(user)) {
+                commonResponseDTO.setMessage("You have no permission to delete service letter requests");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }else if(serviceLetterRequest.getStatus().equals("REVIEWED")){
+                commonResponseDTO.setMessage("Cannot Delete Since Service Letter Request has been reviewed");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            serviceLetterRequestService.deleteServiceLetterRequestById(request_id);
+            commonResponseDTO.setMessage("Service Letter request deleted successfully");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+
+        } catch (Exception e) {
+            commonResponseDTO.setMessage(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<CommonResponseDTO> getAllServieLetterRequests(HttpServletRequest request,
                                                                         @RequestParam(required = false) String search,
