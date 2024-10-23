@@ -74,6 +74,10 @@ public class UserRoleDetailsServices {
         return optionalRole.orElse(null);
     }
 
+    public Page<UserRoleDetails> getUserRoleDetailsByUserandType(Integer page,User user, String type) {
+        Pageable pageable = PageRequest.of(page, 5);
+        return userRoleDetailsRepo.findAllByUserAndType(user, type, pageable);
+    }
 
 
 

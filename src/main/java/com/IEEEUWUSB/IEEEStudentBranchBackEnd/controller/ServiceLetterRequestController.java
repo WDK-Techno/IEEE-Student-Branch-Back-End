@@ -2,12 +2,11 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ServiceLetterReqDTO;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Project;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.ServiceLetterRequest;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
-import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ServiceLetterRequestService;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserRoleDetailsServices;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +26,10 @@ public class ServiceLetterRequestController {
     private ServiceLetterRequestService serviceLetterRequestService;
     @Autowired
     private UserRoleDetailsServices userRoleDetailsServices;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private TaksService taksService;
 
     @PostMapping
     public ResponseEntity<CommonResponseDTO> addRequest(HttpServletRequest request, @RequestBody ServiceLetterReqDTO service) {
@@ -112,7 +115,7 @@ public class ServiceLetterRequestController {
             } else if (!serviceLetterRequest.getUser().equals(user)) {
                 commonResponseDTO.setMessage("You have no permission to delete service letter requests");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
-            }else if(serviceLetterRequest.getStatus().equals("REVIEWED")){
+            } else if (serviceLetterRequest.getStatus().equals("REVIEWED")) {
                 commonResponseDTO.setMessage("Cannot Delete Since Service Letter Request has been reviewed");
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
             }
@@ -175,5 +178,119 @@ public class ServiceLetterRequestController {
         }
     }
 
+    @GetMapping("activities/{user_id}")
+    public ResponseEntity<CommonResponseDTO> getRolesDetailsByUserWithUserID(HttpServletRequest request, @PathVariable Integer user_id,
+                                                                             @RequestParam(required = true) String type,
+                                                                             @RequestParam(required = false, defaultValue = "0") Integer page) {
+        return getRolesDetailsByUser(request, user_id, type, page);
+
+    }
+
+    @GetMapping("activities")
+    public ResponseEntity<CommonResponseDTO> getRolesDetailsByUserWithOutUserID(HttpServletRequest request,
+                                                                                @RequestParam(required = true) String type,
+                                                                                @RequestParam(required = false, defaultValue = "0") Integer page) {
+        return getRolesDetailsByUser(request, null, type, page);
+
+    }
+
+    private ResponseEntity<CommonResponseDTO> getRolesDetailsByUser(HttpServletRequest request, Integer user_id,
+                                                                    String type,
+                                                                    Integer page) {
+
+        CommonResponseDTO<Page<UserRoleDetails>> commonResponseDTO = new CommonResponseDTO<>();
+        User thisuser = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(thisuser, true, "MAIN");
+        boolean isServicePolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "SERVICE");
+        User targetUser;
+        if (user_id != null) {
+            targetUser = userService.getUserId(user_id);
+        } else {
+            targetUser = null;
+        }
+
+        try {
+            if (isServicePolicyAvailable && targetUser != null && type != null) {
+
+                Page<UserRoleDetails> data = userRoleDetailsServices.getUserRoleDetailsByUserandType(page, targetUser, type);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully User Role Details Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else if (targetUser == null && type != null) {
+                Page<UserRoleDetails> data = userRoleDetailsServices.getUserRoleDetailsByUserandType(page, thisuser, type);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully User Role Details Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("You have no permission to get other users details");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get User Role details");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("activities/tasks/{user_id}")
+    public ResponseEntity<CommonResponseDTO> getRolesDetailsByUserWithUserID(HttpServletRequest request, @PathVariable Integer user_id,
+                                                                             @RequestParam(required = false) String search,
+                                                                             @RequestParam(required = false) String priority,
+                                                                             @RequestParam(required = false) String status,
+                                                                             @RequestParam(required = false, defaultValue = "0") Integer page) {
+        return getTasksByUser(request, user_id, search, priority, status, page);
+
+    }
+
+    @GetMapping("activities/tasks")
+    public ResponseEntity<CommonResponseDTO> getRolesDetailsByUserWithOutUserID(HttpServletRequest request,
+                                                                                @RequestParam(required = false) String search,
+                                                                                @RequestParam(required = false) String priority,
+                                                                                @RequestParam(required = false) String status,
+                                                                                @RequestParam(required = false, defaultValue = "0") Integer page) {
+        return getTasksByUser(request, null, search, priority, status, page);
+
+    }
+
+    private ResponseEntity<CommonResponseDTO> getTasksByUser(HttpServletRequest request, Integer user_id,
+                                                             String search,
+                                                             String priority,
+                                                             String status,
+                                                             Integer page) {
+
+        CommonResponseDTO<Page<Task>> commonResponseDTO = new CommonResponseDTO<>();
+        User thisuser = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(thisuser, true, "MAIN");
+        boolean isServicePolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "SERVICE");
+
+        User targetUser;
+        if (user_id != null) {
+            targetUser = userService.getUserId(user_id);
+        } else {
+            targetUser = null;
+        }
+
+        try {
+            if (isServicePolicyAvailable && targetUser != null) {
+
+                Page<Task> data = taksService.findAllTaskByUser(page, search, priority, status, targetUser);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Target User's Tasks Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else if (targetUser == null) {
+                Page<Task> data = taksService.findAllTaskByUser(page, search, priority, status, thisuser);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully this User's Tasks Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("You have no permission to get other users tasks");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get tasks details");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

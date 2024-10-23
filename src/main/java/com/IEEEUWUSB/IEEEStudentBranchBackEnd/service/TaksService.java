@@ -72,7 +72,6 @@ public class TaksService {
 
     }
 
-
     public Task getTaskById(int taskId) {
         return taskRepo.findById(taskId).orElse(null);
     }
@@ -85,5 +84,10 @@ public class TaksService {
     }
     public long countTaskByOu(OU ou, String status){
         return taskRepo.countByOuAndStatus(ou,status);
+    }
+
+    public Page<Task> findAllTaskByUser(Integer page,String search,String priority,String status,User user){
+        Pageable pageable = PageRequest.of(page, 15);
+        return taskRepo.findAllTasksByUser(priority,search,status,user,pageable);
     }
 }

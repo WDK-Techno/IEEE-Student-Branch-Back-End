@@ -50,5 +50,8 @@ public interface UserRoleDetailsRepo extends JpaRepository<UserRoleDetails,Integ
     @Query("SELECT urd FROM UserRoleDetails urd WHERE urd.role = :role AND urd.isActive = :isActive AND urd.type = :type")
     Optional<List<UserRoleDetails>> findByUserRoleAndIsActiveAndTypeExom(Role role, boolean isActive, String type);
 
+
+    Page<UserRoleDetails> findAllByUserAndType(User user, String type, Pageable pageable);
+
 }
 
