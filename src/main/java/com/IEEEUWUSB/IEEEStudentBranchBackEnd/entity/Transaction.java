@@ -35,13 +35,14 @@ public class Transaction {
 
     private Double amount;
 
-    private Double main_amount;
-
     @ManyToOne
     private Wallet from_wallet;
 
     @ManyToOne
     private Wallet to_wallet;
+
+    @ManyToOne
+    private Wallet wallet;
 
     @ManyToOne
     private Account account;
