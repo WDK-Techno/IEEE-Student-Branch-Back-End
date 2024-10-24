@@ -1,5 +1,7 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.BestVolunteerDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Project;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Task;
@@ -94,4 +96,10 @@ public class TaksService {
     public long countAllTasksByUser(User user, String status, String priority){
         return taskRepo.countAllTasksByUserAndStatus(user, status, priority);
     }
+
+    public Page<BestVolunteerDTO> bestVolunteersByCompletedTaskCount (Integer page){
+        Pageable pageable = PageRequest.of(page, 5);
+        return taskRepo.findUsersOrderedByCompletedTasks(pageable);
+    }
+
 }

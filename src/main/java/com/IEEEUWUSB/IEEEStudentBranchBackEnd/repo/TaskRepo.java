@@ -1,5 +1,6 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo;
 
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.BestVolunteerDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Project;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Task;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,4 +69,26 @@ public interface TaskRepo extends JpaRepository<Task, Integer> {
             "AND (:priority IS NULL OR task.priority LIKE CONCAT(:priority, '%')) " +
             "AND (:status IS NULL OR task.status LIKE CONCAT(:status, '%'))")
     long countAllTasksByUserAndStatus(User user, String status, String priority );
+
+
+//    @Query("SELECT u FROM Task t " +
+//            "JOIN t.users u " +
+//            "WHERE :user MEMBER OF t.users AND t.status = 'COMPLETE' " +
+//            "GROUP BY u " +
+//            "ORDER BY COUNT(t) DESC")
+//    List<User> findUsersOrderedByCompleteTaskCount(@Param("user") User user);
+
+//
+
+    @Query("SELECT new com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.BestVolunteerDTO(user, COUNT(DISTINCT task), COUNT(DISTINCT urd.project)) " +
+            "FROM Task task " +
+            "JOIN task.users user " +
+            "JOIN UserRoleDetails urd ON urd.user = user " +
+            "WHERE task.status = 'COMPLETE' " +
+            "AND user.academicYear.status = 'ACTIVE' " +
+            "GROUP BY user.userID " +
+            "ORDER BY COUNT(task) DESC")
+    Page<BestVolunteerDTO> findUsersOrderedByCompletedTasks(Pageable pageable);
+
+
 }

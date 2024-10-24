@@ -1,5 +1,6 @@
 package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.BestVolunteerDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ServiceLetterReqDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
@@ -352,5 +353,32 @@ public class ServiceLetterRequestController {
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("volunteer/best")
+    public ResponseEntity<CommonResponseDTO> getUsersOrderingByTheirCompletedTaskCount(HttpServletRequest request,
+                                                                                       @RequestParam(required = false, defaultValue = "0") Integer page) {
+
+        CommonResponseDTO<Page<BestVolunteerDTO>> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isServiceVolunteerPolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "SERVICE_VOLUNTEER");
+        try {
+            if (isServiceVolunteerPolicyAvailable) {
+
+                Page<BestVolunteerDTO> data = taksService.bestVolunteersByCompletedTaskCount(page);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Ordered Users from Completed Task Count Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("You have no permission to get Ordered Users from Completed Task Count");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get Ordered Users from Completed Task Count");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }
