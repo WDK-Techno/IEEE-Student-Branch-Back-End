@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.service;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ChangePasswordDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.UserDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Policy;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.repo.UserRepo;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.util.VarList;
@@ -9,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -31,15 +35,10 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    public String saveUser(UserDTO userDTO) {
-//        if (userRepo.existsById(userDTO.getUserID())) {
-//            return VarList.RSP_DUPLICATED;
-//        } else {
-//            userRepo.save(modelMapper.map(userDTO, User.class));
-//            return VarList.RSP_SUCCESS;
-//        }
-//
-//    }
+    public User getUserId(int id) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        return optionalUser.orElse(null);
+    }
 
     public String changePassword(ChangePasswordDTO request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -64,14 +63,6 @@ public class UserService {
     }
 
 
-    public String updateUser(UserDTO userDTO) {
-        if (userRepo.existsById(userDTO.getUserID())) {
-            userRepo.save(modelMapper.map(userDTO, User.class));
-            return VarList.RSP_SUCCESS;
-        } else {
-            return VarList.RSP_NO_DATA_FOUND;
-        }
-    }
 
     public List<UserDTO> getAllUser() {
         List<User> userList = userRepo.findAll();
@@ -95,6 +86,37 @@ public class UserService {
         } else {
             return VarList.RSP_NO_DATA_FOUND;
         }
+    }
+
+
+    public User findUserByEmail(String email) {
+        Optional<User> userOptional = userRepo.findByEmail(email);
+        return userOptional.orElse(null);
+    }
+
+
+    public boolean alreadyExistsUser(User user) {
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.ignoreCase())
+                .withIgnorePaths("id");
+        Example<User> example = Example.of(user, matcher);
+        try {
+            userRepo.findOne(example);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
+
+    public User saveUser(User user) {
+       return userRepo.save(user);
+    }
+
+    public Page<User> getAllusers(Integer page, String search) {
+        Pageable pageable = PageRequest.of(page, 15);
+        Page<User> userPage = userRepo.finduser(search, pageable);
+        return userPage;
     }
 
 }

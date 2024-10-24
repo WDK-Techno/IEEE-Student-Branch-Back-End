@@ -2,20 +2,25 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Table(name = "project")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int projectID;
 
     @Column(nullable = false)
@@ -32,15 +37,39 @@ public class Project {
 
     private String status;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_ou",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "ou_id")
-    )
-    private List<OU> ouList;
+    @ManyToOne
+    private TermYear termyear;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserRoleProject> userRoleProjects;
+    @ManyToMany
+    @Builder.Default
+    private Set<OU> ous = new HashSet<>();
+
+
+    @ManyToOne
+    private User createdBy;
+
+    @ManyToMany
+    @Builder.Default
+    private Set<User> users = new HashSet<>();
+
+    public void adduser(User user) {
+        users.add(user);
+    }
+
+    public void removeuser(User user) {
+        users.remove(user);
+    }
+
+    public void addOU(OU ou) {
+        ous.add(ou);
+    }
+
+    public void removeOU(OU ou) {
+        ous.remove(ou);
+    }
+
+
+
+
 
 }
