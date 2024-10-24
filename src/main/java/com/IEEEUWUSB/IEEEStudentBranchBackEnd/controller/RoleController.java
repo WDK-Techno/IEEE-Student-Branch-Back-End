@@ -155,7 +155,7 @@ public class RoleController {
         List<UserRoleDetails> userRoleDetailsMain = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
         List<UserRoleDetails> userRoleDetailsExom = userRoleDetailsServices.getuserRoleDetails(user, true, "EXCOM");
         boolean isExcomAssignAvailablemMain = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
-        boolean isExcomAssignAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsMain, "EXCOM_ASSIGN");
+        boolean isExcomAssignAvailableExcom = userRoleDetailsServices.isPolicyAvailable(userRoleDetailsExom, "EXCOM_ASSIGN");
         if (isExcomAssignAvailableExcom || isExcomAssignAvailablemMain) {
             try {
                 OU ou = ouService.getOUById(ouId);

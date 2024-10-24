@@ -46,8 +46,8 @@ public class OUController {
                 OU newOu = ouService.createOU(ou);
                 Wallet newWallet = Wallet.builder()
                         .type("EXCOM")
-                        .ou(newOu)
                         .amount(0.0)
+                        .ou(newOu)
                         .build();
                 walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(newOu);

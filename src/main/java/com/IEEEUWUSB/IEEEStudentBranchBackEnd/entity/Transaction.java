@@ -35,8 +35,7 @@ public class Transaction {
 
     private Double amount;
 
-    @ManyToOne
-    private Wallet from_wallet;
+    private Double balance;
 
     @ManyToOne
     private Wallet to_wallet;
@@ -48,12 +47,10 @@ public class Transaction {
     private Account account;
 
 
-
-
-
     @PrePersist
     private void generateReferenceId() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        this.referenceId = "TXN-" + LocalDateTime.now().format(formatter) + "-" + id;
+        String typeFirstLetter = type.substring(0, 1).toUpperCase();  // Get the first letter and convert to uppercase
+        this.referenceId = "TXN-" + LocalDateTime.now().format(formatter) + "-" + typeFirstLetter;
     }
 }

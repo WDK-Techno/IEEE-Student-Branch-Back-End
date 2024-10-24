@@ -78,9 +78,9 @@ public class ProjectController {
                 }
                 Project SavedProject = projectService.saveProject(newproject);
                 Wallet newWallet = Wallet.builder()
+                        .amount(0.0)
                         .type("PROJECT")
                         .project(SavedProject)
-                        .amount(0.0)
                         .build();
                 walletService.saveWallet(newWallet);
                 commonResponseDTO.setData(SavedProject);

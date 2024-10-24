@@ -21,11 +21,12 @@ public class Wallet {
 
     private String type;
 
+    private Double amount;
+
     @ManyToOne
     private OU ou;
 
     @ManyToOne
     private Project project;
 
-    private Double amount;
 }
