@@ -43,6 +43,14 @@ public class ProjectService {
         return projectRepository.findAllProjectsByExom(name, status, ou,termYear,pageable);
     }
 
+    public List<Project> getAllProjectByExomList(OU ou) {
+        return projectRepository.findAllByOusContaining(ou);
+    }
+
+    public List<Project> getAllProject() {
+        return projectRepository.findAll();
+    }
+
     public Page<Project> getAllProjectByuser(Integer page, String name, String status, User user) {
         Pageable pageable = PageRequest.of(page, 15);
         return projectRepository.findProjectsByUser(name, status,user,user,pageable);

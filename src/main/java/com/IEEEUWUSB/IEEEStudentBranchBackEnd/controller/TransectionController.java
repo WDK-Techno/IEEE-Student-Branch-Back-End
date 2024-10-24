@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.FinanceBalanceDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.TransectionDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.AccountService;
@@ -330,6 +331,102 @@ public class TransectionController {
             } catch (Exception e) {
 
                 commonResponseDTO.setMessage("failed to retrived Transection");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            commonResponseDTO.setMessage("unauthorized");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+
+
+    @GetMapping("/account_balance/{account_id}")
+    public ResponseEntity<CommonResponseDTO> getAccountBalance(
+            HttpServletRequest request,
+            @PathVariable int account_id
+    ) {
+        CommonResponseDTO<FinanceBalanceDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isFinanceolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "FINANCE_ALL");
+        if (isFinanceolicyAvailable) {
+            try {
+                Account mainAccount = accountService.getAccountById(account_id);
+                if (mainAccount == null) {
+                    commonResponseDTO.setMessage("account in not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                }
+
+                Double accountBalance =  mainAccount.getAmount();
+                Double CreditAmount = transectionService.getTotalCreditByAccountId(account_id);
+                Double debitAmount = transectionService.getTotalDebitByAccountId(account_id);
+
+                FinanceBalanceDTO financeBalanceDTO = FinanceBalanceDTO.builder()
+                        .credit_balance(CreditAmount)
+                        .debit_balance(debitAmount)
+                        .main_balance(accountBalance)
+                        .build();
+
+                commonResponseDTO.setData(financeBalanceDTO);
+                commonResponseDTO.setMessage("Successfully retrived balance");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+
+            } catch (Exception e) {
+
+                commonResponseDTO.setMessage("failed to retrived balance");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            commonResponseDTO.setMessage("unauthorized");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+
+
+    @GetMapping("/wallet_balance/{wallet_id}")
+    public ResponseEntity<CommonResponseDTO> getWalletBalance(
+            HttpServletRequest request,
+            @PathVariable int wallet_id
+    ) {
+        CommonResponseDTO<FinanceBalanceDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isFinanceolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "FINANCE");
+        if (isFinanceolicyAvailable) {
+            try {
+                Wallet wallet = walletService.getWalletById(wallet_id);
+                if (wallet == null) {
+                    commonResponseDTO.setMessage("wallet is not found");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.NOT_FOUND);
+                }
+
+                Double accountBalance =  wallet.getAmount();
+                Double CreditAmount = transectionService.getTotalCreditByWalletId(wallet_id);
+                Double debitAmount = transectionService.getTotalDebitBywalletId(wallet_id);
+
+                FinanceBalanceDTO financeBalanceDTO = FinanceBalanceDTO.builder()
+                        .credit_balance(CreditAmount)
+                        .debit_balance(debitAmount)
+                        .main_balance(accountBalance)
+                        .build();
+
+                commonResponseDTO.setData(financeBalanceDTO);
+                commonResponseDTO.setMessage("Successfully retrived balance");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+
+
+            } catch (Exception e) {
+
+                commonResponseDTO.setMessage("failed to retrived balance");
                 commonResponseDTO.setError(e.getMessage());
                 return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
 

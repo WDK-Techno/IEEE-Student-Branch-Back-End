@@ -37,6 +37,23 @@ public class TransectionService {
         return transectionRepo.findByAccount(search,account,type,startDate,endDate, pageable);
     }
 
+    public Double getTotalCreditByAccountId(int accountId) {
+        return transectionRepo.getTotalCreditByAccountId(accountId).orElse(0.0);
+    }
+
+    public Double getTotalDebitByAccountId(int accountId) {
+        return transectionRepo.getTotalDebitByAccountId(accountId).orElse(0.0);
+    }
+
+
+    public Double getTotalCreditByWalletId(int walletId) {
+        return transectionRepo.getTotalCreditBywalletId(walletId).orElse(0.0);
+    }
+
+    public Double getTotalDebitBywalletId(int walletId) {
+        return transectionRepo.getTotalDebitBywalletId(walletId).orElse(0.0);
+    }
+
 
 
 }
