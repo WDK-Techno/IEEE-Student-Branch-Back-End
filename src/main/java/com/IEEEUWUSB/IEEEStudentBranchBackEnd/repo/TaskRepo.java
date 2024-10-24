@@ -60,4 +60,11 @@ public interface TaskRepo extends JpaRepository<Task, Integer> {
     Page<Task> findAllTasksByUser(String priority, String taskname, String status, User user, Pageable pageable);
 
 //    Optional<Task> findAllByUsersAndPriorityAndStatus(User user, Pageable pageable);
+
+
+    @Query("SELECT COUNT(task) FROM Task task " +
+            "WHERE (:user MEMBER OF task.users) " +
+            "AND (:priority IS NULL OR task.priority LIKE CONCAT(:priority, '%')) " +
+            "AND (:status IS NULL OR task.status LIKE CONCAT(:status, '%'))")
+    long countAllTasksByUserAndStatus(User user, String status, String priority );
 }

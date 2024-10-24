@@ -90,4 +90,8 @@ public class TaksService {
         Pageable pageable = PageRequest.of(page, 15);
         return taskRepo.findAllTasksByUser(priority,search,status,user,pageable);
     }
+
+    public long countAllTasksByUser(User user, String status, String priority){
+        return taskRepo.countAllTasksByUserAndStatus(user, status, priority);
+    }
 }

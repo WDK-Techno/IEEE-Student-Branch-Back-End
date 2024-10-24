@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.ServiceLetterReqDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.StatusCountDTO;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.*;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.ServiceLetterRequestService;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.service.TaksService;
@@ -288,6 +289,65 @@ public class ServiceLetterRequestController {
             }
         } catch (Exception e) {
             commonResponseDTO.setMessage("Failed to get tasks details");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("activities/tasks/count/{user_id}")
+    public ResponseEntity<CommonResponseDTO> getAllTaskCountByUserWithUserID(HttpServletRequest request, @PathVariable Integer user_id,
+                                                                             @RequestParam(required = false) String priority) {
+        return getAllTaskCountByUser(request, user_id, priority);
+
+    }
+
+    @GetMapping("activities/tasks/count")
+    public ResponseEntity<CommonResponseDTO> getAllTaskCountByUserWithOutUserID(HttpServletRequest request,
+                                                                                @RequestParam(required = false) String priority) {
+        return getAllTaskCountByUser(request, null, priority);
+
+    }
+
+    private ResponseEntity<CommonResponseDTO> getAllTaskCountByUser(HttpServletRequest request, Integer user_id,
+                                                                    String priority) {
+
+        CommonResponseDTO<StatusCountDTO> commonResponseDTO = new CommonResponseDTO<>();
+        User thisuser = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(thisuser, true, "MAIN");
+        boolean isServicePolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "SERVICE");
+
+        User targetUser;
+        if (user_id != null) {
+            targetUser = userService.getUserId(user_id);
+        } else {
+            targetUser = null;
+        }
+
+        try {
+            if (isServicePolicyAvailable && targetUser != null) {
+                StatusCountDTO data = null;
+                long todo = taksService.countAllTasksByUser(targetUser, "TODO", priority);
+                long progress = taksService.countAllTasksByUser(targetUser, "PROGRESS", priority);
+                long complete = taksService.countAllTasksByUser(targetUser, "COMPLETE", priority);
+                data = new StatusCountDTO(todo, progress, complete);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Target User's Tasks count Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else if (targetUser == null) {
+                StatusCountDTO data = null;
+                long todo = taksService.countAllTasksByUser(thisuser, "TODO", priority);
+                long progress = taksService.countAllTasksByUser(thisuser, "PROGRESS", priority);
+                long complete = taksService.countAllTasksByUser(thisuser, "COMPLETE", priority);
+                data = new StatusCountDTO(todo, progress, complete);
+                commonResponseDTO.setData(data);
+                commonResponseDTO.setMessage("Successfully Your Tasks count Retrieved");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                commonResponseDTO.setMessage("You have no permission to get other users task count");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("Failed to get tasks Count");
             commonResponseDTO.setError(e.getMessage());
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
         }
