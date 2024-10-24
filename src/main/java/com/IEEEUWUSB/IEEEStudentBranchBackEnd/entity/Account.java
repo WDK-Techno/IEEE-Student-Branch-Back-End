@@ -19,6 +19,7 @@ public class Account {
     @Column(name = "id")
     private int id;
     private String account_number;
+    private Double amount;
     private String bank_name;
     private String branch;
     private String description;

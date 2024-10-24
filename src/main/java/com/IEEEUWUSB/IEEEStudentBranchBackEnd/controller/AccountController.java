@@ -39,6 +39,7 @@ public class AccountController {
                         .bank_name(account.getBank_name())
                         .branch(account.getBranch())
                         .description(account.getDescription())
+                        .amount(0.0)
                         .build();
                 Account savedAccount = accountService.saveAccount(newAccount);
                 commonResponseDTO.setData(savedAccount);

@@ -2,6 +2,7 @@ package com.IEEEUWUSB.IEEEStudentBranchBackEnd.controller;
 
 
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.dto.CommonResponseDTO;
+import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.OU;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.User;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.UserRoleDetails;
 import com.IEEEUWUSB.IEEEStudentBranchBackEnd.entity.Wallet;
@@ -51,6 +52,66 @@ public class WalletController {
         } else {
             commonResponseDTO.setMessage("No Authority to get all wallets");
             return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+    }
+
+    @GetMapping("/main")
+    public ResponseEntity<CommonResponseDTO> getMainWallet(HttpServletRequest request) {
+        CommonResponseDTO<List<Wallet>> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        boolean isFinanceAllpolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "FINANCE_ALL");
+        if (isFinanceAllpolicyAvailable) {
+            try {
+                List<Wallet> excomWallets = walletService.getAllExcomWallet("MAIN");
+                commonResponseDTO.setData(excomWallets);
+                commonResponseDTO.setMessage("Successfully retrieved excom wallets");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } catch (Exception e) {
+
+                commonResponseDTO.setMessage("failed to retrieved excom wallets");
+                commonResponseDTO.setError(e.getMessage());
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
+            }
+        } else {
+            commonResponseDTO.setMessage("No Authority to get all wallets");
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+
+    @GetMapping("")
+    public ResponseEntity<CommonResponseDTO> getMyWallet(HttpServletRequest request) {
+        CommonResponseDTO<Wallet> commonResponseDTO = new CommonResponseDTO<>();
+        User user = (User) request.getAttribute("user");
+        List<UserRoleDetails> userRoleDetails = userRoleDetailsServices.getuserRoleDetails(user, true, "MAIN");
+        UserRoleDetails userRoleDetail = userRoleDetailsServices.findByUserAndIsActiveAndType(user, true, "EXCOM");
+        boolean isFinanceAllpolicyAvailable = userRoleDetailsServices.isPolicyAvailable(userRoleDetails, "FINANCE_ALL");
+        try {
+            if (isFinanceAllpolicyAvailable) {
+                Wallet excomWallets = walletService.getSBWallet("MAIN");
+                commonResponseDTO.setData(excomWallets);
+                commonResponseDTO.setMessage("Successfully retrieved excom wallets");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            } else {
+                OU usersOU = userRoleDetail.getOu();
+                if (usersOU == null) {
+                    commonResponseDTO.setMessage("No Authority to get all wallets");
+                    return new ResponseEntity<>(commonResponseDTO, HttpStatus.UNAUTHORIZED);
+                }
+                Wallet excomWallets = walletService.getWalletByOU(usersOU);
+                commonResponseDTO.setData(excomWallets);
+                commonResponseDTO.setMessage("Successfully retrieved excom wallets");
+                return new ResponseEntity<>(commonResponseDTO, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            commonResponseDTO.setMessage("failed to retrieved excom wallets");
+            commonResponseDTO.setError(e.getMessage());
+            return new ResponseEntity<>(commonResponseDTO, HttpStatus.BAD_REQUEST);
+
         }
 
 
