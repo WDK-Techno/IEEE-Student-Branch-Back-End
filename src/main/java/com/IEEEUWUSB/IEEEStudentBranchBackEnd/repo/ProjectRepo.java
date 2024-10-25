@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ProjectRepo extends JpaRepository<Project, Integer> {
 
     @Query("SELECT project FROM Project project " +
@@ -60,6 +62,8 @@ public interface ProjectRepo extends JpaRepository<Project, Integer> {
             User user,
             User createdby
     );
+
+    List<Project> findAllByOusContaining(OU ou);
 
 
 

@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface TransectionRepo extends JpaRepository<Transaction, Integer> {
 
@@ -33,6 +35,25 @@ public interface TransectionRepo extends JpaRepository<Transaction, Integer> {
             "AND (:endDate IS NULL OR transaction.date <= :endDate)" +
             "ORDER BY transaction.id DESC")
     Page<Transaction> findByAccount(String search, Account account, String type, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+
+    // Query to calculate total credit value for a specific account
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.account.id = :accountId AND t.type = 'CREDIT'")
+    Optional<Double> getTotalCreditByAccountId(@Param("accountId") int accountId);
+
+    // Query to calculate total debit value for a specific account
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.account.id = :accountId AND t.type = 'DEBIT'")
+    Optional<Double> getTotalDebitByAccountId(@Param("accountId") int accountId);
+
+    // Query to calculate total credit value for a specific account
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.wallet.id = :walletId AND t.type = 'CREDIT'")
+    Optional<Double> getTotalCreditBywalletId(@Param("walletId") int walletId);
+
+    // Query to calculate total debit value for a specific account
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.wallet.id = :walletId AND t.type = 'DEBIT'")
+    Optional<Double> getTotalDebitBywalletId(@Param("walletId") int walletId);
+
+
 
 
 }

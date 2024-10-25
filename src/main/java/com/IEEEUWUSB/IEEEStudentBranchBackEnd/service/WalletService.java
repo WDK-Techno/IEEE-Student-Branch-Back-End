@@ -44,4 +44,8 @@ public class WalletService {
     public Wallet getWalletByOU(OU ou) {
         return walletRepo.findByOu(ou);
     }
+
+    public Wallet getWalletByProoject(Project project) {
+        return walletRepo.findByProject(project);
+    }
 }

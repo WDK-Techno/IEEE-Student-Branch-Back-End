@@ -16,4 +16,6 @@ public interface WalletRepo extends JpaRepository<Wallet, Integer> {
     Wallet findFirstByType(String type);
 
     Wallet findByOu(OU ou);
+
+    Wallet findByProject(Project project);
 }
